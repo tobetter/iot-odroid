@@ -43,7 +43,7 @@ start() {
     sed "s/YOUR_DEVICE_ID/$DEVID/g" $TEMPLATE > $USBMOUNT/QuickStart.html
     umount /media/usb
 
-    modprobe g_mass_storage file=$DISKIMAGE
+#    modprobe g_mass_storage file=$DISKIMAGE
 
     local CMD="$SCRIPT &> \"$LOGFILE\" & echo \$!"
     su -c "$CMD" root > "$PIDFILE"
@@ -56,7 +56,7 @@ stop() {
         return 1
     fi
 
-    rmmod g_mass_storage
+#    rmmod g_mass_storage
 
     kill -15 $(cat "$PIDFILE") && rm -f "$PIDFILE"
     echo 'Service stopped' >&2
