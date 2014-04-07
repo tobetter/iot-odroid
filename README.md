@@ -1,7 +1,7 @@
 iot-raspberrypi-samples
 =======================
 
-This repository will contain a sample for connecting a Raspberry Pi to the IBM Internet of Things cloud
+This repository will contain a sample for connecting a [Raspberry Pi](http://www.raspberrypi.org/) to the IBM Internet of Things cloud
 
 See the Wiki for more details of the example.
 
