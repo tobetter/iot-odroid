@@ -1,0 +1,12 @@
+b73ff98e3cce64f8cdad2c87c4fc7aa9  opt/iot/README
+39e85ffa3b896b3891686e79d56c5b87  opt/iot/iot
+d41d8cd98f00b204e9800998ecf8427e  opt/iot/iot.log
+8cb2a9fc922d8f4aab716ec8dba9c30b  opt/iot/iot.properties
+3f793694482b0754fac1cf1c3d486d3c  opt/iot/start-iot.sh
+133541faea51319e44f9e9beb98722f8  opt/iot/stop-iot.sh
+091263a1c7012b1c66e9a3b175188c69  usr/lib/libpaho-mqtt3a.so
+091263a1c7012b1c66e9a3b175188c69  usr/lib/libpaho-mqtt3a.so.1
+091263a1c7012b1c66e9a3b175188c69  usr/lib/libpaho-mqtt3a.so.1.0
+b73ff98e3cce64f8cdad2c87c4fc7aa9  usr/share/doc/iot/README.Debian
+811bc2ae74026dac754ab43cb63db25e  usr/share/doc/iot/changelog.Debian.gz
+046e5ad48c0cb02dcbd8a29d0d6b8c36  usr/share/doc/iot/copyright
