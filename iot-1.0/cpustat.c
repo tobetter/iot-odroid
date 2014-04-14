@@ -1,6 +1,18 @@
+/*******************************************************************************
+* Copyright (c) 2014 IBM Corporation and other Contributors.
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors: jeffdare
+* IBM - Initial Contribution
+*******************************************************************************/
+
 /*
  * C Program to get the stats for CPU.
- * Currently it gets the CPU temperature and CPU usage across 1 minute
+ * Currently it gets the CPU temperature and CPU usage
  */
 
 #include <stdio.h>
@@ -14,16 +26,6 @@ char cpuloadloc[255] = "/proc/loadavg";
 
 float getCPUTemp();
 float GetCPULoad();
-
-/*int main(int argc, char **argv) {
-	float tempincpu;
-	int usage = 0;
-
-	tempincpu = getCPUTemp();
-	usage = GetCPULoad();
-	printf("The temp of the cpu is %0.2f and the usage is %d percent\n",tempincpu,usage);
-	
-}*/
 
 float getCPUTemp() {
 	FILE * cputemp = NULL;
