@@ -18,4 +18,6 @@
   typedef struct json JsonMessage;
 
 #define MAXBUF 100
+
+extern int connected;
 #endif /* IOT_H_ */

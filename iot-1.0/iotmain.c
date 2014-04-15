@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <math.h>
 #include "iot.h"
+#include "MQTTAsync.h"
 
 char propFileLoc[20] = "./iot.properties";
 char lockFileLoc[10] = "./.lck";
@@ -26,6 +27,8 @@ float MAX_VALUE = 50.0;
 
 char clientId[MAXBUF];
 char topic[MAXBUF];
+
+MQTTAsync client;
 
 struct config {
 	char hostname[MAXBUF];
@@ -38,10 +41,13 @@ float GetCPULoad();
 char *getmac(char *iface);
 void get_config(char* filename, struct config * configstr);
 char *getClientId(char* tenant_prefix, char* mac_address);
-int publishMQTTMessage(char *address, char* client_id, char *topic, char *payload);
 char *getTopic(char* ext_device_id);
 float sineVal(float minValue, float maxValue, float duration, float count);
 char * generateJSON(JsonMessage passedrpi );
+
+int init_mqtt_connection(MQTTAsync* client, char *address, char* client_id);
+int publishMQTTMessage(MQTTAsync* client, char *topic, char *payload);
+int disconnect_mqtt_client(MQTTAsync* client);
 
 int main(int argc, char **argv) {
 	printf("***********Entering the IOT raspberry pi device********************\n");
@@ -70,20 +76,35 @@ int main(int argc, char **argv) {
 	get_config(propFileLoc, &configstr);
 	getClientId(configstr.tenantprefix, mac_address);
 	getTopic(mac_address);
+
+	// initialize the MQTT connection
+	init_mqtt_connection(&client, configstr.hostname, clientId);
+	// Wait till we get a successful connection to IoT MQTT server
+	while(connected != 1) {
+		if(connected == -1) {
+			printf("Retry connection\n",connected);
+			connected = 0;
+			init_mqtt_connection(&client, configstr.hostname, clientId);
+		}
+		sleep(1);
+	}	
+
 	// count for the sine wave
 	int count = 1;
 	sleepTimeout = atoi(configstr.timeout);
-	printf("Connecting to %s ",configstr.hostname);
 	while(1){
 		JsonMessage json_message = {"myPi", getCPUTemp(), sineVal(MIN_VALUE, MAX_VALUE, 5 , count), GetCPULoad()};
 		json = generateJSON(json_message);
-		res = publishMQTTMessage(configstr.hostname, clientId, topic, json);
+		res = publishMQTTMessage(&client, topic, json);
 		printf("Posted the message with result code = %d\n",res);
 		fflush(stdout);
 		free(json);
 		count++;
 		sleep(sleepTimeout);
 	}
+
+	//disconnect the client
+	disconnect_mqtt_client(&client);
 	return 0;
 }
 // This is the function to read the config from the iot.properties file
