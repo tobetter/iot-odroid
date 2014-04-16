@@ -29,4 +29,8 @@ Steps to run the sample:
 4. If you want to stop the process. Invoke the following command
 	sudo ./stop-iot.sh
 
+IMPORTANT:
+----------
+Please use the start-iot.sh and stop-iot.sh to start and stop the process. Unless you understand the working,
+do not directly use "iot" executable. 
 
