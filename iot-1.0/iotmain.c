@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <math.h>
+#include <signal.h>
 #include "iot.h"
 #include "MQTTAsync.h"
 
@@ -40,6 +41,7 @@ void get_config(char* filename, struct config * configstr);
 char *getClientId(char* tenant_prefix, char* mac_address);
 char *getTopic(char* ext_device_id);
 float sineVal(float minValue, float maxValue, float duration, float count);
+void sig_handler(int signo);
 
 //cpustat.c
 float getCPUTemp();
@@ -64,8 +66,6 @@ int main(int argc, char **argv) {
 	int res;
 	int sleepTimeout;
 
-	float temp = getCPUTemp();
-	char* mac_address = getmac("eth0");
 	//first check if there is another process already started
 	if (access(lockFileLoc, F_OK) != -1) {
 		printf("There is another process of IOT-Raspberry running. Please close that before starting. If there are no other IOT-Raspberry process running, please delete the .lck file and start again\n");
@@ -76,9 +76,14 @@ int main(int argc, char **argv) {
 		printf("Creating the .lck file\n");
 		fclose(fp);
 	}
-	
+	// register the signal handler for USR1-user defined signal 1
+	if (signal(SIGUSR1, sig_handler) == SIG_ERR)
+		printf("Not able to register the signal handler\n");
+
 	// to load the config files
 	get_config(propFileLoc, &configstr);
+	// read the events
+	char* mac_address = getmac("eth0");
 	getClientId(configstr.tenantprefix, mac_address);
 	getTopic(mac_address);
 
@@ -108,8 +113,6 @@ int main(int argc, char **argv) {
 		sleep(sleepTimeout);
 	}
 
-	//disconnect the client
-	disconnect_mqtt_client(&client);
 	return 0;
 }
 // This is the function to read the config from the iot.properties file
@@ -167,3 +170,15 @@ float sineVal(float minValue, float maxValue, float duration, float count) {
         return sineValue;
 }
 
+// Signal handler to handle when the user tries to kill this process. Try to close down gracefully
+void sig_handler(int signo)
+{
+        printf("Received the signal to terminate the IoT process. \n");
+	printf("Trying to shut the process. Closing the MQTT connection. \n");
+	int res = disconnect_mqtt_client(&client);
+
+	printf("Disconnect finished with result code : %d\n",res);
+	printf("Shutdown the process is complete. \n");
+	printf("************Exiting the IOT raspberry pi device********************\n");
+	exit(1);
+}
