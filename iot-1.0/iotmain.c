@@ -36,15 +36,20 @@ struct config {
 	char tenantprefix[MAXBUF];
 };
 
-float getCPUTemp();
-float GetCPULoad();
-char *getmac(char *iface);
 void get_config(char* filename, struct config * configstr);
 char *getClientId(char* tenant_prefix, char* mac_address);
 char *getTopic(char* ext_device_id);
 float sineVal(float minValue, float maxValue, float duration, float count);
-char * generateJSON(JsonMessage passedrpi );
 
+//cpustat.c
+float getCPUTemp();
+float GetCPULoad();
+//mac.c
+char *getmac(char *iface);
+//jsonator.c
+char * generateJSON(JsonMessage passedrpi );
+	
+//mqttPublisher.c
 int init_mqtt_connection(MQTTAsync* client, char *address, char* client_id);
 int publishMQTTMessage(MQTTAsync* client, char *topic, char *payload);
 int disconnect_mqtt_client(MQTTAsync* client);
