@@ -23,6 +23,7 @@ install: iot
 	cp iot.properties $(DIR)/iot.properties
 	install start-iot.sh $(DIR)/start-iot.sh
 	install stop-iot.sh $(DIR)/stop-iot.sh
+	install getMacAddress.sh $(DIR)/getMacAddress.sh
 	cp README $(DIR)/README
 	cp iot.log $(DIR)/iot.log
 
