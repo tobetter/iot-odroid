@@ -7,7 +7,7 @@ all: iot
 
 .PHONY: all install clean distclean
 
-iot:
+iot: iotmain.c cpustat.c mac.c mqttPublisher.c jsonator.c
 	export LIBRARY_PATH=$(COMPILELIBDIR):$(LIBRARY_PATH)
 	$(CC) iotmain.c cpustat.c mac.c mqttPublisher.c jsonator.c -o $@ -l$(LIBNAME) -lpthread -lm -L $(COMPILELIBDIR) -I .
 	strip $@
@@ -25,7 +25,6 @@ install: iot
 	install stop-iot.sh $(DIR)/stop-iot.sh
 	install getMacAddress.sh $(DIR)/getMacAddress.sh
 	cp README $(DIR)/README
-	cp iot.log $(DIR)/iot.log
 
 clean:
 	rm -f iot

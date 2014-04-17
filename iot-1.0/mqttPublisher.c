@@ -14,6 +14,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "MQTTAsync.h"
+#include <syslog.h>
 
 #define DEBUG 1 //make this 1 for debugging
 #ifdef DEBUG
@@ -41,23 +42,24 @@ volatile MQTTAsync_token deliveredtoken;
 /*
  * Try to reconnect if the connection is lost 
  */
-void connlost(void *context, char *cause) {
+void connlostqwe(void *context, char *cause) {
+
 	MQTTAsync client = (MQTTAsync) context;
 	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
 	int rc;
 #ifdef ERROR
-	printf("\nConnection lost\n");
-	printf("     cause: %s\n", cause);
+	syslog(LOG_ERR,"\nConnection lost\n");
+	syslog(LOG_ERR," cause: %s\n", cause);
 #endif
 
 #ifdef INFO
-	printf("Reconnecting\n");
+	syslog(LOG_INFO,"Reconnecting\n");
 #endif
 	conn_opts.keepAliveInterval = 20;
 	conn_opts.cleansession = 1;
 	if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS) {
 #ifdef ERROR
-		printf("Failed to start connect, return code %d\n", rc);
+		syslog(LOG_ERR,"Failed to start connect, return code %d\n", rc);
 #endif
 	}
 }
@@ -68,7 +70,7 @@ void connlost(void *context, char *cause) {
 void onSend(void* context, MQTTAsync_successData* response) {
 
 #ifdef FINE
-	printf("Event with token value %d delivery confirmed\n", response->token);
+	syslog(LOG_DEBUG,"Event with token value %d delivery confirmed\n", response->token);
 #endif
 }
 
@@ -78,7 +80,7 @@ void onSend(void* context, MQTTAsync_successData* response) {
 void onConnectSuccess(void* context, MQTTAsync_successData* response) {
 
 #ifdef FINE
-	printf("Successful connection\n");
+	syslog(LOG_INFO,"Connection was successful\n");
 #endif
 	// The connection is successful. update it to 1
 	connected = 1;
@@ -96,7 +98,7 @@ int disconnect_mqtt_client(MQTTAsync* client) {
 
 	if ((rc = MQTTAsync_disconnect(client, &opts)) != MQTTASYNC_SUCCESS) {
 #ifdef ERROR
-		printf("Failed to start sendMessage, return code %d\n", rc);
+		syslog(LOG_ERR,"Failed to start sendMessage, return code %d\n", rc);
 #endif
 	}
 	MQTTAsync_destroy(client);
@@ -108,10 +110,11 @@ int disconnect_mqtt_client(MQTTAsync* client) {
  */
 void onConnectFailure(void* context, MQTTAsync_failureData* response) {
 #ifdef ERROR
-	printf("Connect failed ");
-	if(response) {
-		printf("with response code : %d",response->code);
-	} 
+	syslog(LOG_ERR,"Connect failed ");
+	if (response) {
+		syslog(LOG_ERR,"with response code : %d", response->code);
+	}
+
 #endif
 	connected = -1; // connection has failed
 }
@@ -123,13 +126,13 @@ int init_mqtt_connection(MQTTAsync* client, char *address, char* client_id) {
 
 	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
 	int rc = MQTTASYNC_SUCCESS;
-	MQTTAsync_create(client, address,client_id , MQTTCLIENT_PERSISTENCE_NONE,
+	MQTTAsync_create(client, address, client_id, MQTTCLIENT_PERSISTENCE_NONE,
 			NULL);
 
-	MQTTAsync_setCallbacks(*client, NULL, connlost, NULL, NULL);
+	MQTTAsync_setCallbacks(*client, NULL, connlostqwe, NULL, NULL);
 
 #ifdef INFO
-	printf("Connecting to %s with client Id: %s \n", address, client_id);
+	syslog(LOG_INFO,"Connecting to %s with client Id: %s \n", address, client_id);
 #endif
 	conn_opts.keepAliveInterval = 20;
 	conn_opts.cleansession = 1;
@@ -138,7 +141,26 @@ int init_mqtt_connection(MQTTAsync* client, char *address, char* client_id) {
 	conn_opts.context = client;
 	if ((rc = MQTTAsync_connect(*client, &conn_opts)) != MQTTASYNC_SUCCESS) {
 #ifdef ERROR
-		printf("Failed to start connect, return code %d\n", rc);
+		syslog(LOG_ERR,"Failed to start connect, return code %d\n", rc);
+#endif
+	}
+	return rc;
+}
+
+int reconnect(MQTTAsync* client) {
+
+	syslog(LOG_INFO,"Retrying the connection\n");
+	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
+
+	conn_opts.keepAliveInterval = 20;
+	conn_opts.cleansession = 1;
+	conn_opts.onSuccess = onConnectSuccess;
+	conn_opts.onFailure = onConnectFailure;
+	conn_opts.context = client;
+	int rc;
+	if ((rc = MQTTAsync_connect(*client, &conn_opts)) != MQTTASYNC_SUCCESS) {
+#ifdef ERROR
+		syslog(LOG_ERR,"Failed to start connect, return code %d\n", rc);
 #endif
 	}
 	return rc;
@@ -165,13 +187,13 @@ int publishMQTTMessage(MQTTAsync* client, char *topic, char *payload) {
 	if ((rc = MQTTAsync_sendMessage(*client, topic, &pubmsg, &opts))
 			!= MQTTASYNC_SUCCESS) {
 #ifdef ERROR
-		printf("Failed to start sendMessage, return code %d\n", rc);
+		syslog(LOG_ERR,"Failed to start sendMessage, return code %d\n", rc);
 #endif
 		return rc;
 	}
 
 #ifdef INFO
-	printf("Waiting for publication of %s\n"
+	syslog(LOG_DEBUG,"Waiting for publication of %s\n"
 			"on topic %s\n", payload, topic);
 #endif
 

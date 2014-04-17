@@ -1,6 +1,6 @@
 #!/bin/sh
 
-file_name=./.lck
+file_name=~/.lck
 
 if [ -e "$file_name" ]
 then
@@ -11,9 +11,9 @@ fi
 echo "Starting the IoT-Raspberry"
 
 #cd ./bin
-./iot >> iot.log &
+./iot &
 pid=$!
 
-echo $pid >.pid
+echo $pid >~/.pid
 
 echo "Started the IoT-Raspberry. Running with pid : $pid"

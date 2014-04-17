@@ -41,10 +41,3 @@ char *getmac(char *iface)
   }
   return(ret);
 }
-
-/*int main()
-{
-  char *mac = getmac("eth0");
-  printf("%s\n",mac);
-  free(mac);
-}*/

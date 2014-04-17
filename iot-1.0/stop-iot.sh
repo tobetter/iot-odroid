@@ -1,7 +1,7 @@
 #!/bin/sh
 
-pid_file=./.pid
-lck_file=./.lck
+pid_file=~/.pid
+lck_file=~/.lck
 
 if [ -e "$pid_file" ]
 then

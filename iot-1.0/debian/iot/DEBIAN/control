@@ -2,7 +2,7 @@ Package: iot
 Version: 1.0-1
 Architecture: armhf
 Maintainer: Jeffrey Dare <jeffdare@in.ibm.com>
-Installed-Size: 296
+Installed-Size: 299
 Depends: libc6 (>= 2.13-28)
 Section: unknown
 Priority: extra
