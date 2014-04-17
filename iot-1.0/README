@@ -14,20 +14,22 @@ The sample depends on the iot.properties to get the values. The values are
 1. url -> The public url for the IoT message sight
 2. timeinterval - > The time interval for publishing the events to the IoT cloud service.
 3. tenantprefix - > The registered tenant on the IoT cloud service
+4. loglevel - > Level of logging to the syslog. By default its INFO.
+		Values - ERROR-3, INFO-6, DEBUG-7
 
 Please edit the iot.properties with your configuration. 
 
 Steps to run the sample:
 
 1. Run the start script using the following command 
-	sudo ./start-iot.sh
+	./start-iot.sh
 
 2. It will print the pid and start the iot process. 
 
 3. Check the iot.log for more information on the publishing of events.
 
 4. If you want to stop the process. Invoke the following command
-	sudo ./stop-iot.sh
+	./stop-iot.sh
 
 IMPORTANT:
 ----------
