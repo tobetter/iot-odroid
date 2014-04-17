@@ -7,7 +7,7 @@ The events that are emitted in this sample are
 
 1. CPU temperature
 2. CPU Load
-3. Sine wave points
+3. Simulated Sine wave to demonstrate the different events can be pushed to IoT Portal and visualized.
 
 The sample depends on the iot.properties to get the values. The values are 
 
