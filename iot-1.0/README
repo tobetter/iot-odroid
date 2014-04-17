@@ -9,7 +9,10 @@ The events that are emitted in this sample are
 2. CPU Load
 3. Simulated Sine wave to demonstrate the different events can be pushed to IoT Portal and visualized.
 
-The sample depends on the iot.properties to get the values. The values are 
+The sample depends on the iot.properties to get the values. If you are using this sample for the quickstart demo, NO
+NEED to EDIT any of the following properties.
+
+The values are 
 
 1. url -> The public url for the IoT message sight
 2. timeinterval - > The time interval for publishing the events to the IoT cloud service.
@@ -31,8 +34,11 @@ Steps to run the sample:
 4. If you want to stop the process. Invoke the following command
 	./stop-iot.sh
 
-IMPORTANT:
-----------
-Please use the start-iot.sh and stop-iot.sh to start and stop the process. Unless you understand the working,
-do not directly use "iot" executable. 
+IMPORTANT NOTE:
+---------------
+Please use the start-iot.sh and stop-iot.sh to start and stop the process. Unless you understand the working of this 
+sample, do not directly use "iot" executable. 
+
+
+
 
