@@ -20,10 +20,9 @@ install: iot
 	cp $(COMPILELIBDIR)/libpaho-mqtt3a.so $(LIBDIR)/libpaho-mqtt3a.so
 	cp $(COMPILELIBDIR)/libpaho-mqtt3a.so.1 $(LIBDIR)/libpaho-mqtt3a.so.1
 	cp $(COMPILELIBDIR)/libpaho-mqtt3a.so.1.0 $(LIBDIR)/libpaho-mqtt3a.so.1.0
-	cp iot.properties $(DIR)/iot.properties
 	install start-iot.sh $(DIR)/start-iot.sh
 	install stop-iot.sh $(DIR)/stop-iot.sh
-	install getMacAddress.sh $(DIR)/getMacAddress.sh
+	install iotGetDeviceID.sh $(DIR)/iotGetDeviceID.sh
 	cp README $(DIR)/README
 
 clean:

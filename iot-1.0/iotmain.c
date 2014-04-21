@@ -61,7 +61,8 @@ int reconnect(MQTTAsync* client);
 
 int main(int argc, char **argv) {
 
-	struct config configstr;
+	// Removing the properties file and reading all the values from the typedefs in iot.h
+	//struct config configstr;
 	char* json;
 
 	int lckStatus;
@@ -69,10 +70,10 @@ int main(int argc, char **argv) {
 	int sleepTimeout;
 printf("%s",lockFileLoc);
 	// to load the config files
-	get_config(propFileLoc, &configstr);
+	//get_config(propFileLoc, &configstr);
 
 	//setup the syslog logging
-	setlogmask (LOG_UPTO (atoi(configstr.loglevel)));
+	setlogmask (LOG_UPTO (LOGLEVEL));
 	openlog("iot",LOG_PID|LOG_CONS, LOG_USER);
 	syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has started ****");
 	//first check if there is another process already started
@@ -83,11 +84,11 @@ printf("%s",lockFileLoc);
 				"There is another process of IOT-Raspberry running. "
 				"Please close that before starting. If there are no "
 				"other IOT-Raspberry process running, please delete "
-				"the .lck file and start again\n");
+				"the /$(HOME)/.lck file and start again\n");
 		printf("There is another process of IOT-Raspberry running. "
                                 "Please close that before starting. If there are no "
                                 "other IOT-Raspberry process running, please delete "
-                                "the .lck file and start again\n");
+                                "the /$(HOME)/.lck file and start again\n");
 		exit(1);
 	} else {
 		FILE *fp;
@@ -101,11 +102,9 @@ printf("%s",lockFileLoc);
 	if (signal(SIGINT, sig_handler) == SIG_ERR)
                 syslog(LOG_CRIT,"Not able to register the signal handler\n");
 
-	// to load the config files
-	get_config(propFileLoc, &configstr);
 	// read the events
 	char* mac_address = getmac("eth0");
-	getClientId(configstr.tenantprefix, mac_address);
+	getClientId(TENANT_PREFIX, mac_address);
 	getTopic(mac_address);
 	
 	//the timeout between the connection retry
@@ -113,7 +112,7 @@ printf("%s",lockFileLoc);
 	int retryAttempt= 0;
 
 	// initialize the MQTT connection
-	init_mqtt_connection(&client, configstr.hostname, clientId);
+	init_mqtt_connection(&client, MSPROXY_URL, clientId);
 	// Wait till we get a successful connection to IoT MQTT server
 	while (!MQTTAsync_isConnected(client)) {
 		connDelayTimeout = 1; // add extra delay(3,60,600) only when reconnecting
@@ -122,7 +121,7 @@ printf("%s",lockFileLoc);
 			syslog(LOG_ERR,"Failed connection attempt #%d. Will try to reconnect "
 					"in %d seconds\n", retryAttempt, connDelayTimeout);
 			connected = 0;
-			init_mqtt_connection(&client, configstr.hostname, clientId);
+			init_mqtt_connection(&client, MSPROXY_URL, clientId);
 		}
 		fflush(stdout);
 		sleep(connDelayTimeout);
@@ -133,9 +132,9 @@ printf("%s",lockFileLoc);
 
 	// count for the sine wave
 	int count = 1;
-	sleepTimeout = atoi(configstr.timeout);
+	sleepTimeout = EVENTS_INTERVAL;
 	while (1) {
-		JsonMessage json_message = { "myPi", getCPUTemp(), sineVal(MIN_VALUE,
+		JsonMessage json_message = { DEVICE_NAME, getCPUTemp(), sineVal(MIN_VALUE,
 				MAX_VALUE, 5, count), GetCPULoad() };
 		json = generateJSON(json_message);
 		res = publishMQTTMessage(&client, topic, json);

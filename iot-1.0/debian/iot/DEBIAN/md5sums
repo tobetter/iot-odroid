@@ -1,7 +1,6 @@
-902e9ae912a5f1ffb702f5b0e8765cfd  opt/iot/README
-81f45213da911129dfd01fef0be30e55  opt/iot/getMacAddress.sh
-2242822e66925f9203fb405e0ecd5179  opt/iot/iot
-a112b48de2f197dfcf1943a8851c1fb3  opt/iot/iot.properties
+ed07bba0c35529b9337d643871040547  opt/iot/README
+52fa70ee5a2d2627ae836e9c114f1a78  opt/iot/iot
+81f45213da911129dfd01fef0be30e55  opt/iot/iotGetDeviceID.sh
 b9cfe5f04d6a60e98f7840ef4717e4ce  opt/iot/start-iot.sh
 75f2bb96592333867c9e594c5fff5995  opt/iot/stop-iot.sh
 091263a1c7012b1c66e9a3b175188c69  usr/lib/libpaho-mqtt3a.so
