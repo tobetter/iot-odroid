@@ -21,7 +21,7 @@
 #define MAXBUF 100
 
 //config properties
-#define MSPROXY_URL "tcp://46.16.188.196:1883"
+#define MSPROXY_URL "tcp://messaging.qs.ibmcloud.com:1883"
 #define EVENTS_INTERVAL 2
 #define TENANT_PREFIX "quickstart"
 #define DEVICE_NAME "myPi"
