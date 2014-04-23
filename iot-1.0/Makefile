@@ -7,7 +7,7 @@ all: iot
 
 .PHONY: all install clean distclean
 
-iot: iotmain.c cpustat.c mac.c mqttPublisher.c jsonator.c
+iot: iotmain.c cpustat.c mac.c mqttPublisher.c jsonator.c iot.h
 	export LIBRARY_PATH=$(COMPILELIBDIR):$(LIBRARY_PATH)
 	$(CC) iotmain.c cpustat.c mac.c mqttPublisher.c jsonator.c -o $@ -l$(LIBNAME) -lpthread -lm -L $(COMPILELIBDIR) -I .
 	strip $@

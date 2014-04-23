@@ -1,3 +1,11 @@
 iot-1.0/.lck
 iot-1.0/.pc
 iot-1.0/iot
+iot-1.0/debian/files
+iot-1.0/debian/iot.debhelper.log
+iot-1.0/debian/iot.postinst.debhelper
+iot-1.0/debian/iot.postrm.debhelper
+iot-1.0/debian/iot.prerm.debhelper
+iot-1.0/debian/iot.substvars
+iot-1.0/debian/iot/
+
