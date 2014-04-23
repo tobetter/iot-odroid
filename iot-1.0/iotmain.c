@@ -76,26 +76,7 @@ printf("%s",lockFileLoc);
 	setlogmask (LOG_UPTO (LOGLEVEL));
 	openlog("iot",LOG_PID|LOG_CONS, LOG_USER);
 	syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has started ****");
-	//first check if there is another process already started
-	char* homedir = getenv("HOME");
-	sprintf(lockFileLoc, "%s/.lck", homedir); 
-	if (access(lockFileLoc, F_OK) != -1) {
-		syslog(LOG_CRIT,
-				"There is another process of IOT-Raspberry running. "
-				"Please close that before starting. If there are no "
-				"other IOT-Raspberry process running, please delete "
-				"the /$(HOME)/.lck file and start again\n");
-		printf("There is another process of IOT-Raspberry running. "
-                                "Please close that before starting. If there are no "
-                                "other IOT-Raspberry process running, please delete "
-                                "the /$(HOME)/.lck file and start again\n");
-		exit(1);
-	} else {
-		FILE *fp;
-		fp = fopen(lockFileLoc, "w");
-		syslog(LOG_DEBUG,"Creating the .lck file\n");
-		fclose(fp);
-	}
+
 	// register the signal handler for USR1-user defined signal 1
 	if (signal(SIGUSR1, sig_handler) == SIG_ERR)
 		syslog(LOG_CRIT,"Not able to register the signal handler\n");
@@ -106,7 +87,7 @@ printf("%s",lockFileLoc);
 	char* mac_address = getmac("eth0");
 	getClientId(TENANT_PREFIX, mac_address);
 	getTopic(mac_address);
-	
+
 	//the timeout between the connection retry
 	int connDelayTimeout = 1;	// default sleep for 1 sec
 	int retryAttempt= 0;

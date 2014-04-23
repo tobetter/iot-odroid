@@ -1,2 +1,0 @@
-shlibs:Depends=iot, libc6 (>= 2.4), libc6 (>= 2.13-28)
-misc:Depends=
