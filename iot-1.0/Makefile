@@ -16,9 +16,9 @@ install: iot
 	mkdir -p $(LIBDIR)
 	mkdir -p $(DIR)
 	install iot $(DIR)/iot
-	cp $(COMPILELIBDIR)/libpaho-mqtt3a.so $(LIBDIR)/libpaho-mqtt3a.so
-	cp $(COMPILELIBDIR)/libpaho-mqtt3a.so.1 $(LIBDIR)/libpaho-mqtt3a.so.1
 	cp $(COMPILELIBDIR)/libpaho-mqtt3a.so.1.0 $(LIBDIR)/libpaho-mqtt3a.so.1.0
+	ln -s libpaho-mqtt3a.so.1.0 $(LIBDIR)/libpaho-mqtt3a.so.1
+	ln -s libpaho-mqtt3a.so.1 $(LIBDIR)/libpaho-mqtt3a.so
 	install iotGetDeviceID.sh $(DIR)/iotGetDeviceID.sh
 	cp README $(DIR)/README
 

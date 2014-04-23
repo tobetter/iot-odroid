@@ -116,7 +116,7 @@ printf("%s",lockFileLoc);
 	sleepTimeout = EVENTS_INTERVAL;
 	while (1) {
 		JsonMessage json_message = { DEVICE_NAME, getCPUTemp(), sineVal(MIN_VALUE,
-				MAX_VALUE, 5, count), GetCPULoad() };
+				MAX_VALUE, 8, count), GetCPULoad() };
 		json = generateJSON(json_message);
 		res = publishMQTTMessage(&client, topic, json);
 		syslog(LOG_DEBUG,"Posted the message with result code = %d\n", res);
