@@ -21,7 +21,7 @@ install: iot
 	ln -s libpaho-mqtt3a.so.1.0 $(LIBDIR)/libpaho-mqtt3a.so.1
 	ln -s libpaho-mqtt3a.so.1 $(LIBDIR)/libpaho-mqtt3a.so
 	install iotGetDeviceID.sh $(DIR)/iotGetDeviceID.sh
-	cp README $(DIR)/README
+	cp README.md $(DIR)/README
 
 clean:
 	rm -f iot
