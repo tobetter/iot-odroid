@@ -72,3 +72,7 @@ Purging configuration files for iot ...
 ```
 
 IoT process logs with the help of syslog. So to view the logs, go to /var/log/syslog. 
+
+
+#####Note for Windows Users:
+When you clone/fork this repository, please ensure that file permissions for the libraries are set properly and "libpaho-mqtt3a.so" and "libpaho-mqtt3a.so.1" are symbolic links. 
