@@ -13,16 +13,16 @@ The events that are emitted in this sample are:
 
 ####Get the deb installer
 ```
-pi@raspberrypi ~ $ curl -L https://github.com/ibm-messaging/iot-raspberrypi/blob/master/iot_1.0-1_armhf.deb?raw=true > iot_1.0-1_armhf.deb
+pi@raspberrypi ~ $ curl -L https://github.com/ibm-messaging/iot-raspberrypi/releases/download/1.0.0/iot1.0.0_armhf.deb > iot1.0.0_armhf.deb
 ```
 
 ####Install the deb
 ```
-pi@raspberrypi ~ $ sudo dpkg -i iot_1.0-1_armhf.deb
+pi@raspberrypi ~ $ sudo dpkg -i iot1.0.0_armhf.deb
 Selecting previously unselected package iot.
 (Reading database ... 68603 files and directories currently installed.)
-Unpacking iot (from iot_1.0-1_armhf.deb) ...
-Setting up iot (1.0-1) ...
+Unpacking iot (from iot1.0.0_armhf.deb) ...
+Setting up iot (1.0.0) ...
 Starting the iot program
 ```
 
@@ -36,18 +36,14 @@ pi@raspberrypi ~ $ invoke-rc.d iot status
 
 ### Visualize
 
-You can now use the IoT web site to visualize the data that your Raspberry Pi is generating. 
+Visit the [IBM Internet of Things QuickStart Portal](http://quickstart.internetofthings.ibmcloud.com/) and enter your device ID to see real time visualizations of the data sent from your device.
 
-Run `iotGetDeviceID.sh` to get the device ID(Mac address) for your Raspberry Pi
+Run `iotGetDeviceID.sh` to get the device ID (MAC address) for your Raspberry Pi
 
 ```
 pi@raspberrypi /opt/iot $ ./iotGetDeviceID.sh
 b827eba84426
 ```
-
-* Enter the Device Id in the portal page
-* Now you will see a visual representation of the events that was sent from the Raspberry Pi.
-
 
 
 ### Other Commands
