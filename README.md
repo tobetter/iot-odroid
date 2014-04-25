@@ -22,7 +22,7 @@ pi@raspberrypi ~ $ sudo dpkg -i iot1.0.0_armhf.deb
 Selecting previously unselected package iot.
 (Reading database ... 68603 files and directories currently installed.)
 Unpacking iot (from iot1.0.0_armhf.deb) ...
-Setting up iot (1.0.0) ...
+Setting up iot (1.0-1) ...
 Starting the iot program
 ```
 
@@ -41,7 +41,7 @@ Visit the [IBM Internet of Things QuickStart Portal](http://quickstart.interneto
 Run `iotGetDeviceID.sh` to get the device ID (MAC address) for your Raspberry Pi
 
 ```
-pi@raspberrypi /opt/iot $ ./iotGetDeviceID.sh
+pi@raspberrypi ~ $ /opt/iot/iotGetDeviceID.sh
 b827eba84426
 ```
 
@@ -75,4 +75,4 @@ IoT process logs with the help of syslog. So to view the logs, go to /var/log/sy
 
 
 #####Note for Windows Users:
-When you clone/fork this repository, please ensure that file permissions for the libraries are set properly and "libpaho-mqtt3a.so" and "libpaho-mqtt3a.so.1" are symbolic links. 
+When you clone/fork this repository,ensure that file permissions for the libraries are set properly and that  "libpaho-mqtt3a.so" and "libpaho-mqtt3a.so.1" are symbolic links. 
