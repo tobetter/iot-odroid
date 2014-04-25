@@ -13,7 +13,7 @@ The events that are emitted in this sample are:
 
 ####Get the deb installer
 ```
-pi@raspberrypi ~ $ curl -L https://github.com/ibm-messaging/iot-raspberrypi/releases/download/1.0.0/iot1.0.0_armhf.deb > iot1.0.0_armhf.deb
+pi@raspberrypi ~ $ curl -LO https://github.com/ibm-messaging/iot-raspberrypi/releases/download/1.0.0/iot1.0.0_armhf.deb
 ```
 
 ####Install the deb
