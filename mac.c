@@ -6,8 +6,8 @@
 * which accompanies this distribution, and is available at
 * http://www.eclipse.org/legal/epl-v10.html
 *
-* Contributors: jeffdare
-* IBM - Initial Contribution
+* Contributors:
+*   Jeffrey Dare - Initial Contribution
 *******************************************************************************/
 
 #include <sys/socket.h>

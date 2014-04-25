@@ -1,3 +1,15 @@
+/*******************************************************************************
+* Copyright (c) 2014 IBM Corporation and other Contributors.
+*
+* All rights reserved. This program and the accompanying materials
+* are made available under the terms of the Eclipse Public License v1.0
+* which accompanies this distribution, and is available at
+* http://www.eclipse.org/legal/epl-v10.html
+*
+* Contributors:
+*   Jeffrey Dare - Initial Contribution
+*******************************************************************************/
+
 /*
  * iot.h
  */
@@ -22,7 +34,7 @@
 
 //config properties
 #define MSPROXY_URL "tcp://messaging.quickstart.internetofthings.ibmcloud.com:1883"
-#define EVENTS_INTERVAL 2
+#define EVENTS_INTERVAL 1
 #define TENANT_PREFIX "quickstart"
 #define DEVICE_NAME "myPi"
 //Logging level for the syslog

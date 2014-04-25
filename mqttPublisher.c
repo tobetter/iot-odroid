@@ -6,8 +6,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors: rajathr1
- * IBM - Initial Contribution
+ * Contributors:
+ *   rajathr1 - Initial Contribution
  *******************************************************************************/
 
 #include <stdio.h>

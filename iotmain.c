@@ -6,8 +6,8 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * Contributors: jeffdare
- * IBM - Initial Contribution
+ * Contributors:
+ *   Jeffrey Dare - Initial Contribution
  *******************************************************************************/
 
 #include <stdio.h>
@@ -20,7 +20,6 @@
 #include "MQTTAsync.h"
 #include <syslog.h>
 
-char propFileLoc[20] = "./iot.properties";
 char lockFileLoc[20];
 float PI = 3.1415926;
 float MIN_VALUE = -50.0;
@@ -61,17 +60,14 @@ int reconnect(MQTTAsync* client);
 
 int main(int argc, char **argv) {
 
-	// Removing the properties file and reading all the values from the typedefs in iot.h
-	//struct config configstr;
 	char* json;
 
 	int lckStatus;
 	int res;
 	int sleepTimeout;
-printf("%s",lockFileLoc);
-	// to load the config files
-	//get_config(propFileLoc, &configstr);
-
+	
+	printf("%s",lockFileLoc);
+	
 	//setup the syslog logging
 	setlogmask (LOG_UPTO (LOGLEVEL));
 	openlog("iot",LOG_PID|LOG_CONS, LOG_USER);
@@ -147,43 +143,6 @@ printf("%s",lockFileLoc);
 	}
 
 	return 0;
-}
-// This is the function to read the config from the iot.properties file
-void get_config(char * filename, struct config * configstr) {
-
-	FILE* prop;
-	char str1[10], str2[10];
-	prop = fopen(filename, "r");
-	if (prop == NULL) {
-		syslog(LOG_CRIT,
-				"Error while opening the properties file. Please ensure "
-				"that the properties file exist in this directory\n");
-		exit(1);
-	}
-	char line[256];
-	int linenum = 0;
-	while (fgets(line, 256, prop) != NULL) {
-		char prop[256], value[256];
-
-		linenum++;
-		if (line[0] == '#')
-			continue;
-
-		if (sscanf(line, "%s %s", prop, value) != 2) {
-			syslog(LOG_ERR, "Syntax error in properties file, line %d\n", linenum);
-			continue;
-		}
-		if (strcmp(prop, "url") == 0)
-			strncpy(configstr->hostname, value, MAXBUF);
-		else if (strcmp(prop, "timeinterval") == 0)
-			strncpy(configstr->timeout, value, 10);
-		else if (strcmp(prop, "tenantprefix") == 0)
-			strncpy(configstr->tenantprefix, value, MAXBUF);
-		else if (strcmp(prop, "loglevel") == 0)
-					strncpy(configstr->loglevel, value, 10);
-
-	}
-
 }
 
 //This generates the clientID based on the tenant_prefix and mac_address(external Id)
