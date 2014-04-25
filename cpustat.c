@@ -53,6 +53,6 @@ float GetCPULoad() {
         f1 = fopen(cpuloadloc, "r");
         fscanf(f1, "%f\t%f\t%f\t", &load1, &load5, &load15 );
 	fclose(f1);
-        return (load1 * 100);
+        return (load1);
 
 }
