@@ -22,7 +22,7 @@
 
 //config properties
 #define MSPROXY_URL "tcp://messaging.quickstart.internetofthings.ibmcloud.com:1883"
-#define EVENTS_INTERVAL 2
+#define EVENTS_INTERVAL 1
 #define TENANT_PREFIX "quickstart"
 #define DEVICE_NAME "myPi"
 //Logging level for the syslog

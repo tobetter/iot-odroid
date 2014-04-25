@@ -1,5 +1,6 @@
 DIR=$(DESTDIR)/opt/iot
 LIBDIR=$(DESTDIR)/usr/lib
+
 COMPILELIBDIR=./lib
 LIBNAME=paho-mqtt3a
 
