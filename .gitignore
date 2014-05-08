@@ -1,11 +1,11 @@
-.lck
-.pc
-iot
-debian/files
-debian/iot.debhelper.log
-debian/iot.postinst.debhelper
-debian/iot.postrm.debhelper
-debian/iot.prerm.debhelper
-debian/iot.substvars
-debian/iot/
+samples/c/.lck
+samples/c/.pc
+samples/c/iot
+samples/c/debian/files
+samples/c/debian/iot.debhelper.log
+samples/c/debian/iot.postinst.debhelper
+samples/c/debian/iot.postrm.debhelper
+samples/c/debian/iot.prerm.debhelper
+samples/c/debian/iot.substvars
+samples/c/debian/iot/
 
