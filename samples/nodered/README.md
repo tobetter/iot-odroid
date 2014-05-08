@@ -13,7 +13,7 @@ The events that are emitted in this sample are:
 Connect
 -------
 
-1. Log in to Raspberry Pi. 
+1. Log in to Raspberry Pi. (Default login Username: pi Password: raspberry)
 2. Clone the GitHub project: __git clone https://github.com/ibm-messaging/iot-raspberrypi__
 3. __cd iot-raspberrypi/samples/nodered__
 4. Run __sudo ./setup.sh__. This completes the following tasks:
