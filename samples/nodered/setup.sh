@@ -40,6 +40,7 @@ patch -p0 < ../mqttlost2.patch || exit 1
 
 # setup service
 sed -i "s%RED_DIR%$PWD%g" /etc/init.d/node-red || exit 1
-#update-rc.d node-red defaults || exit 1
+
+update-rc.d node-red defaults || exit 1
 
 #service node-red start

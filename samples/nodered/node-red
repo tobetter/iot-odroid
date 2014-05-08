@@ -15,6 +15,11 @@ PIDFILE=/var/run/node-red.pid
 case "$1" in
 
 start)
+	if [ -e "$PIDFILE" ]
+        then
+                echo "There is another process of node red for Raspberry Pi running. If there are no other process of node-red running, please delete the $PIDFILE and try again."
+                exit 1
+        fi
 	echo "Starting Node-RED"
 	cd RED_DIR
 	nohup node --max-old-space-size=196 red.js flows_raspi.json > ../node-red.out 2>&1 &
@@ -36,3 +41,5 @@ restart)
 	echo "Usage: $0 {start|stop|restart}"
 	exit 1
 esac
+
+exit 0
