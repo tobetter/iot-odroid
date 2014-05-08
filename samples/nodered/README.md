@@ -9,7 +9,7 @@ Connect
 3. __cd iot-raspberrypi/samples/nodered__
 4. Run __sudo ./setup.sh__. This completes the following tasks:
    Installs node-red, contributed nodes, npm requisites, and configures a system service to run a supplied flow.
-   This will take a few minutes.
+   This will take a few minutes. (This command requires __sudo__ as it registers the node-red as a init service)
 5. Find your MAC address for example using __./iotGetDeviceID.sh__ which is needed for the [quickstart site](http://quickstart.internetofthings.ibmcloud.com).
 6. Start node-red with __sudo service node-red start__
 
