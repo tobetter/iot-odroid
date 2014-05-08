@@ -1,6 +1,15 @@
 Node-RED sample
 ===============
 
+This is the sample program to send the following events from the Raspberry Pi to the Quickstart IBM Internet of Things service.
+
+The events that are emitted in this sample are:
+
++ CPU temperature
++ CPU Load
++ Simulated Sine wave to demonstrate the different events can be pushed to IoT Portal and visualized.
+
+
 Connect
 -------
 
