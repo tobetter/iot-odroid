@@ -24,6 +24,7 @@ Connect
 
 
 Troubleshooting and Development
----------------------------
+--------------------------------
 + Check the node-red.out file for diagnostics from Node-RED.
 + You can connect a browser to port [raspberrypi-address:1880] in order to develop the flow in the Node-RED UI, activate debug nodes to show events emitted.
++ If __git__ is not installed, install it using __sudo apt-get install git__
