@@ -14,7 +14,7 @@ Connect
 -------
 
 1. Log in to Raspberry Pi. (Default login Username: pi Password: raspberry)
-2. Download the sample tarball using __wget https://github.com/jeffdare/iot-raspberrypi/releases/download/1.0.0-nodered/iot-1.0.0-nodered.tar.gz__.
+2. Download the sample tarball using __wget https://github.com/jeffdare/iot-raspberrypi/releases/download/1.0.0-nodered/iot-1.0.0-nodered.tar.gz__
 3. __cd iot-raspi-nodered__
 4. Run __sudo ./setup.sh__. This completes the following tasks:
    Installs Node-RED, contributed nodes, npm requisites, and configures a system service to run a supplied flow.
