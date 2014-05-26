@@ -38,11 +38,12 @@ pi@raspberrypi ~ $ invoke-rc.d iot status
 
 Visit the [IBM Internet of Things QuickStart Portal](http://quickstart.internetofthings.ibmcloud.com/) and enter your device ID to see real time visualizations of the data sent from your device.
 
-Run `iotGetDeviceID.sh` to get the device ID (MAC address) for your Raspberry Pi
+Run `invoke-rc.d iot getdeviceid` to get the device ID (MAC address) for your Raspberry Pi
 
 ```
-pi@raspberrypi ~ $ /opt/iot/iotGetDeviceID.sh
-b827eba84426
+pi@raspberrypi ~ $ invoke-rc.d iot getdeviceid
+The device ID is b827eba84426
+For Real-time visualization of the data, visit http://quickstart.internetofthings.ibmcloud.com/?deviceId=b827eba84426
 ```
 
 
