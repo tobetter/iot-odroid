@@ -8,4 +8,6 @@ samples/c/debian/iot.postrm.debhelper
 samples/c/debian/iot.prerm.debhelper
 samples/c/debian/iot.substvars
 samples/c/debian/iot/
-
+samples/iot_1.0-1_armhf.build
+samples/iot_1.0-1_armhf.changes
+samples/iot_1.0-1_armhf.deb
