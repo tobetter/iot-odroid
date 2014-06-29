@@ -20,26 +20,32 @@
 #include "MQTTAsync.h"
 #include <syslog.h>
 
-char lockFileLoc[20];
+char configFile[50] = "/etc/iotsample-raspberrypi/device.cfg";
 float PI = 3.1415926;
 float MIN_VALUE = -50.0;
 float MAX_VALUE = 50.0;
 
 char clientId[MAXBUF];
-char topic[MAXBUF];
+char publishTopic[MAXBUF] = "iot-2/evt/status/fmt/json";
+char subscribeTopic[MAXBUF] = "iot-2/cmd/reboot/fmt/json";
+
+//flag to check if running in registered mode or quickstart mode
+// registered mode = 1
+// quickstart mode = 0
+int isRegistered = 0;
 
 MQTTAsync client;
 
+//config file structure
 struct config {
-	char hostname[MAXBUF];
-	char timeout[10];
-	char tenantprefix[MAXBUF];
-	char loglevel[2];
+	char org[MAXBUF];
+	char type[MAXBUF];
+	char id[MAXBUF];
+	char token[MAXBUF];
 };
 
-void get_config(char* filename, struct config * configstr);
-char *getClientId(char* tenant_prefix, char* mac_address);
-char *getTopic(char* ext_device_id);
+int get_config(char* filename, struct config * configstr);
+void getClientId(struct config * configstr, char* mac_address);
 float sineVal(float minValue, float maxValue, float duration, float count);
 void sig_handler(int signo);
 int reconnect_delay(int i);
@@ -55,6 +61,7 @@ char * generateJSON(JsonMessage passedrpi);
 //mqttPublisher.c
 int init_mqtt_connection(MQTTAsync* client, char *address, char* client_id);
 int publishMQTTMessage(MQTTAsync* client, char *topic, char *payload);
+int subscribe(MQTTAsync* client, char *topic);
 int disconnect_mqtt_client(MQTTAsync* client);
 int reconnect(MQTTAsync* client);
 
@@ -65,28 +72,32 @@ int main(int argc, char **argv) {
 	int lckStatus;
 	int res;
 	int sleepTimeout;
-	
-	printf("%s",lockFileLoc);
-	
+	struct config configstr;
+
 	//setup the syslog logging
-	setlogmask (LOG_UPTO (LOGLEVEL));
-	openlog("iot",LOG_PID|LOG_CONS, LOG_USER);
+	setlogmask(LOG_UPTO(LOGLEVEL));
+	openlog("iot", LOG_PID | LOG_CONS, LOG_USER);
 	syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has started ****");
 
 	// register the signal handler for USR1-user defined signal 1
 	if (signal(SIGUSR1, sig_handler) == SIG_ERR)
-		syslog(LOG_CRIT,"Not able to register the signal handler\n");
+		syslog(LOG_CRIT, "Not able to register the signal handler\n");
 	if (signal(SIGINT, sig_handler) == SIG_ERR)
-                syslog(LOG_CRIT,"Not able to register the signal handler\n");
+		syslog(LOG_CRIT, "Not able to register the signal handler\n");
+
+	//read the config file, to decide whether to goto quickstart or registered mode of operation
+	isRegistered = get_config(configFile, &configstr);
+
+	printf("The location are %s %s %s %s", configstr.org, configstr.type,
+			configstr.id, configstr.token);
 
 	// read the events
 	char* mac_address = getmac("eth0");
-	getClientId(TENANT_PREFIX, mac_address);
-	getTopic(mac_address);
-
+	getClientId(&configstr, mac_address);
+	printf("\n The client is %s\n", clientId);
 	//the timeout between the connection retry
 	int connDelayTimeout = 1;	// default sleep for 1 sec
-	int retryAttempt= 0;
+	int retryAttempt = 0;
 
 	// initialize the MQTT connection
 	init_mqtt_connection(&client, MSPROXY_URL, clientId);
@@ -95,8 +106,9 @@ int main(int argc, char **argv) {
 		connDelayTimeout = 1; // add extra delay(3,60,600) only when reconnecting
 		if (connected == -1) {
 			connDelayTimeout = reconnect_delay(++retryAttempt);	//Try to reconnect after the retry delay
-			syslog(LOG_ERR,"Failed connection attempt #%d. Will try to reconnect "
-					"in %d seconds\n", retryAttempt, connDelayTimeout);
+			syslog(LOG_ERR,
+					"Failed connection attempt #%d. Will try to reconnect "
+							"in %d seconds\n", retryAttempt, connDelayTimeout);
 			connected = 0;
 			init_mqtt_connection(&client, MSPROXY_URL, clientId);
 		}
@@ -105,26 +117,31 @@ int main(int argc, char **argv) {
 	}
 	// resetting the counters
 	connDelayTimeout = 1;
-	retryAttempt= 0;
+	retryAttempt = 0;
 
 	// count for the sine wave
 	int count = 1;
 	sleepTimeout = EVENTS_INTERVAL;
+
+	//subscribe for commands - only on registered mode
+	if (isRegistered) {
+		subscribe(&client, subscribeTopic);
+	}
 	while (1) {
-		JsonMessage json_message = { DEVICE_NAME, getCPUTemp(), sineVal(MIN_VALUE,
-				MAX_VALUE, 16, count), GetCPULoad() };
+		JsonMessage json_message = { DEVICE_NAME, getCPUTemp(), sineVal(
+				MIN_VALUE, MAX_VALUE, 16, count), GetCPULoad() };
 		json = generateJSON(json_message);
-		res = publishMQTTMessage(&client, topic, json);
-		syslog(LOG_DEBUG,"Posted the message with result code = %d\n", res);
+		res = publishMQTTMessage(&client, publishTopic, json);
+		syslog(LOG_DEBUG, "Posted the message with result code = %d\n", res);
 		if (res == -3) {
 			//update the connected to connection failed
 			connected = -1;
 			while (!MQTTAsync_isConnected(client)) {
-				if(connected == -1) {
-					connDelayTimeout = reconnect_delay(++retryAttempt);     //Try to reconnect after the retry delay
-					syslog(LOG_ERR,"Failed connection attempt #%d. "
-                        				"Will try to reconnect in %d "
-                        				"seconds\n", retryAttempt, connDelayTimeout);
+				if (connected == -1) {
+					connDelayTimeout = reconnect_delay(++retryAttempt); //Try to reconnect after the retry delay
+					syslog(LOG_ERR, "Failed connection attempt #%d. "
+							"Will try to reconnect in %d "
+							"seconds\n", retryAttempt, connDelayTimeout);
 					sleep(connDelayTimeout);
 					connected = 0;
 					reconnect(&client);
@@ -132,9 +149,9 @@ int main(int argc, char **argv) {
 				fflush(stdout);
 				sleep(1);
 			}
-		 	// resetting the counters
+			// resetting the counters
 			connDelayTimeout = 1;
-			retryAttempt= 0;
+			retryAttempt = 0;
 		}
 		fflush(stdout);
 		free(json);
@@ -146,16 +163,27 @@ int main(int argc, char **argv) {
 }
 
 //This generates the clientID based on the tenant_prefix and mac_address(external Id)
-char *getClientId(char* tenant_prefix, char* mac_address) {
+void getClientId(struct config * configstr, char* mac_address) {
 
-	sprintf(clientId, "%s:%s", tenant_prefix, mac_address);
-	return clientId;
-}
+	char *orgId;
+	char *typeId;
+	char *deviceId;
 
-char *getTopic(char* ext_device_id) {
+	if (isRegistered) {
 
-	sprintf(topic, "iot-1/d/%s/evt/rpi-quickstart/json", ext_device_id);
-	return topic;
+		orgId = configstr->org;
+		typeId = configstr->type;
+		deviceId = configstr->id;
+
+	} else {
+
+		orgId = "quickstart";
+		typeId = "iotsample-raspberrypi";
+		deviceId = mac_address;
+
+	}
+	sprintf(clientId, "d:%s:%s:%s",orgId, typeId, deviceId);
+//	sprintf(clientId, "%s:%s", TENANT_PREFIX,mac_address);
 }
 
 //This function generates the sine value based on the interval specified and the duration
@@ -167,14 +195,14 @@ float sineVal(float minValue, float maxValue, float duration, float count) {
 
 // Signal handler to handle when the user tries to kill this process. Try to close down gracefully
 void sig_handler(int signo) {
-	syslog(LOG_INFO,"Received the signal to terminate the IoT process. \n");
-	syslog(LOG_INFO,"Trying to end the process gracefully. Closing the MQTT connection. \n");
+	syslog(LOG_INFO, "Received the signal to terminate the IoT process. \n");
+	syslog(LOG_INFO,
+			"Trying to end the process gracefully. Closing the MQTT connection. \n");
 	int res = disconnect_mqtt_client(&client);
 
-	syslog(LOG_INFO,"Disconnect finished with result code : %d\n", res);
-	syslog(LOG_INFO,"Shutdown the process is complete. \n");
-	syslog(LOG_INFO,
-			"**** IoT Raspberry Pi Sample has ended ****");
+	syslog(LOG_INFO, "Disconnect finished with result code : %d\n", res);
+	syslog(LOG_INFO, "Shutdown the process is complete. \n");
+	syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has ended ****");
 	closelog();
 	exit(1);
 }
@@ -182,11 +210,52 @@ void sig_handler(int signo) {
  * depends on the number of failed attempts
  */
 int reconnect_delay(int i) {
-        if(i<10) {
-                return 3; // first 10 attempts try within 3 seconds
-        }
-        if(i < 20)
-                return 60; // next 10 attempts retry after every 1 minute
+	if (i < 10) {
+		return 3; // first 10 attempts try within 3 seconds
+	}
+	if (i < 20)
+		return 60; // next 10 attempts retry after every 1 minute
 
-        return 600;	// after 20 attempts, retry every 10 minutes
+	return 600;	// after 20 attempts, retry every 10 minutes
 }
+
+// This is the function to read the config from the device.cfg file
+int get_config(char * filename, struct config * configstr) {
+
+	FILE* prop;
+	char str1[10], str2[10];
+	prop = fopen(filename, "r");
+	if (prop == NULL) {
+		syslog(LOG_CRIT,
+				"Error while opening the properties file. Please ensure "
+						"that the properties file exist in this directory\n");
+		return 0; // as the file is not present, it must be quickstart mode
+	}
+	char line[256];
+	int linenum = 0;
+	while (fgets(line, 256, prop) != NULL) {
+		char prop[256], value[256];
+
+		linenum++;
+		if (line[0] == '#')
+			continue;
+
+		if (sscanf(line, "%s %s", prop, value) != 2) {
+			syslog(LOG_ERR, "Syntax error in properties file, line %d\n",
+					linenum);
+			continue;
+		}
+		if (strcmp(prop, "org") == 0)
+			strncpy(configstr->org, value, MAXBUF);
+		else if (strcmp(prop, "type") == 0)
+			strncpy(configstr->type, value, MAXBUF);
+		else if (strcmp(prop, "id") == 0)
+			strncpy(configstr->id, value, MAXBUF);
+		else if (strcmp(prop, "token") == 0)
+			strncpy(configstr->token, value, MAXBUF);
+
+	}
+
+	return 1;
+}
+

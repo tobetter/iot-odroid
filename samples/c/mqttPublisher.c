@@ -39,27 +39,30 @@
 int connected = 0;
 volatile MQTTAsync_token deliveredtoken;
 
+//for parsing the json
+int getDelay(char *text);
+
 /*
  * Try to reconnect if the connection is lost 
  */
-void connlostqwe(void *context, char *cause) {
+void connlost(void *context, char *cause) {
 
 	MQTTAsync client = (MQTTAsync) context;
 	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
 	int rc;
 #ifdef ERROR
-	syslog(LOG_ERR,"\nConnection lost\n");
-	syslog(LOG_ERR," cause: %s\n", cause);
+	syslog(LOG_ERR, "\nConnection lost\n");
+	syslog(LOG_ERR, " cause: %s\n", cause);
 #endif
 
 #ifdef INFO
-	syslog(LOG_INFO,"Reconnecting\n");
+	syslog(LOG_INFO, "Reconnecting\n");
 #endif
 	conn_opts.keepAliveInterval = 20;
 	conn_opts.cleansession = 1;
 	if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS) {
 #ifdef ERROR
-		syslog(LOG_ERR,"Failed to start connect, return code %d\n", rc);
+		syslog(LOG_ERR, "Failed to start connect, return code %d\n", rc);
 #endif
 	}
 }
@@ -70,7 +73,18 @@ void connlostqwe(void *context, char *cause) {
 void onSend(void* context, MQTTAsync_successData* response) {
 
 #ifdef FINE
-	syslog(LOG_DEBUG,"Event with token value %d delivery confirmed\n", response->token);
+	syslog(LOG_DEBUG, "Event with token value %d delivery confirmed\n",
+			response->token);
+#endif
+}
+
+/*
+ * This function is called when the subscription succeeds
+ */
+void onSubscription(void* context, MQTTAsync_successData* response) {
+
+#ifdef FINE
+	syslog(LOG_INFO, "Subscription succeeded\n");
 #endif
 }
 
@@ -80,7 +94,7 @@ void onSend(void* context, MQTTAsync_successData* response) {
 void onConnectSuccess(void* context, MQTTAsync_successData* response) {
 
 #ifdef FINE
-	syslog(LOG_INFO,"Connection was successful\n");
+	syslog(LOG_INFO, "Connection was successful\n");
 #endif
 	// The connection is successful. update it to 1
 	connected = 1;
@@ -98,7 +112,7 @@ int disconnect_mqtt_client(MQTTAsync* client) {
 
 	if ((rc = MQTTAsync_disconnect(client, &opts)) != MQTTASYNC_SUCCESS) {
 #ifdef ERROR
-		syslog(LOG_ERR,"Failed to start sendMessage, return code %d\n", rc);
+		syslog(LOG_ERR, "Failed to start sendMessage, return code %d\n", rc);
 #endif
 	}
 	MQTTAsync_destroy(client);
@@ -110,13 +124,36 @@ int disconnect_mqtt_client(MQTTAsync* client) {
  */
 void onConnectFailure(void* context, MQTTAsync_failureData* response) {
 #ifdef ERROR
-	syslog(LOG_ERR,"Connect failed ");
+	syslog(LOG_ERR, "Connect failed ");
 	if (response) {
-		syslog(LOG_ERR,"with response code : %d", response->code);
+		syslog(LOG_ERR, "with response code : %d", response->code);
 	}
 
 #endif
 	connected = -1; // connection has failed
+}
+
+/*
+ * Function to process the subscribed messages
+ */
+int subscribeMessage(void *context, char *topicName, int topicLen,
+		MQTTAsync_message *message) {
+	int i;
+	char* payloadptr;
+
+	printf("Message arrived\n");
+	printf("  topic: %s\n", topicName);
+	printf("  message: ");
+
+	payloadptr = message->payload;
+
+	int de = getDelay(payloadptr);
+
+	printf("\n THe delay is %d", de);
+
+	MQTTAsync_freeMessage(&message);
+	MQTTAsync_free(topicName);
+	return 1;
 }
 
 /* 
@@ -127,21 +164,24 @@ int init_mqtt_connection(MQTTAsync* client, char *address, char* client_id) {
 	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
 	int rc = MQTTASYNC_SUCCESS;
 	MQTTAsync_create(client, address, client_id, MQTTCLIENT_PERSISTENCE_NONE,
-			NULL);
+	NULL);
 
-	MQTTAsync_setCallbacks(*client, NULL, connlostqwe, NULL, NULL);
+	MQTTAsync_setCallbacks(*client, NULL, connlost, subscribeMessage, NULL);
 
 #ifdef INFO
-	syslog(LOG_INFO,"Connecting to %s with client Id: %s \n", address, client_id);
+	syslog(LOG_INFO, "Connecting to %s with client Id: %s \n", address,
+			client_id);
 #endif
 	conn_opts.keepAliveInterval = 20;
 	conn_opts.cleansession = 1;
 	conn_opts.onSuccess = onConnectSuccess;
 	conn_opts.onFailure = onConnectFailure;
 	conn_opts.context = client;
+	conn_opts.username = client_id;
+	conn_opts.password = "M00sesRule!";
 	if ((rc = MQTTAsync_connect(*client, &conn_opts)) != MQTTASYNC_SUCCESS) {
 #ifdef ERROR
-		syslog(LOG_ERR,"Failed to start connect, return code %d\n", rc);
+		syslog(LOG_ERR, "Failed to start connect, return code %d\n", rc);
 #endif
 	}
 	return rc;
@@ -149,7 +189,7 @@ int init_mqtt_connection(MQTTAsync* client, char *address, char* client_id) {
 
 int reconnect(MQTTAsync* client) {
 
-	syslog(LOG_INFO,"Retrying the connection\n");
+	syslog(LOG_INFO, "Retrying the connection\n");
 	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
 
 	conn_opts.keepAliveInterval = 20;
@@ -160,9 +200,33 @@ int reconnect(MQTTAsync* client) {
 	int rc;
 	if ((rc = MQTTAsync_connect(*client, &conn_opts)) != MQTTASYNC_SUCCESS) {
 #ifdef ERROR
-		syslog(LOG_ERR,"Failed to start connect, return code %d\n", rc);
+		syslog(LOG_ERR, "Failed to start connect, return code %d\n", rc);
 #endif
 	}
+	return rc;
+}
+
+int subscribe(MQTTAsync* client, char *topic) {
+
+	MQTTAsync_responseOptions opts = MQTTAsync_responseOptions_initializer;
+	int rc = MQTTASYNC_SUCCESS;
+
+	opts.onSuccess = onSubscription;
+	opts.context = *client;
+
+	if ((rc = MQTTAsync_subscribe(*client, topic, QOS, &opts))
+			!= MQTTASYNC_SUCCESS) {
+#ifdef ERROR
+		syslog(LOG_ERR, "Failed to subscribe, return code %d\n", rc);
+#endif
+		return rc;
+	}
+
+#ifdef INFO
+	syslog(LOG_DEBUG, "Waiting for subscription "
+			"on topic %s\n", topic);
+#endif
+
 	return rc;
 }
 /* 
@@ -187,16 +251,14 @@ int publishMQTTMessage(MQTTAsync* client, char *topic, char *payload) {
 	if ((rc = MQTTAsync_sendMessage(*client, topic, &pubmsg, &opts))
 			!= MQTTASYNC_SUCCESS) {
 #ifdef ERROR
-		syslog(LOG_ERR,"Failed to start sendMessage, return code %d\n", rc);
+		syslog(LOG_ERR, "Failed to start sendMessage, return code %d\n", rc);
 #endif
 		return rc;
 	}
 
 #ifdef INFO
-	syslog(LOG_DEBUG,"Waiting for publication of %s\n"
-			"on topic %s\n", payload, topic);
+	syslog(LOG_DEBUG, "Waiting for publication of %s on topic %s\n", payload, topic);
 #endif
 
 	return rc;
 }
-
