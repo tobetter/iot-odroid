@@ -1,6 +1,6 @@
 #Device configuration file...
-org ibm_test
-type TestDevice
-id a
-token M00sesRule!
+org=ibm_test
+type = TestDevice
+id=a
+token=M00sesRule!
 #End of Configuration file
