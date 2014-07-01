@@ -36,4 +36,3 @@ int getDelay(char *text) {
 
 	return delay;
 }
-

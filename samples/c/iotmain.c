@@ -59,7 +59,8 @@ char *getmac(char *iface);
 char * generateJSON(JsonMessage passedrpi);
 
 //mqttPublisher.c
-int init_mqtt_connection(MQTTAsync* client, char *address, char* client_id);
+int init_mqtt_connection(MQTTAsync* client, char *address, int isRegistered,
+		char* client_id, char* passwd);
 int publishMQTTMessage(MQTTAsync* client, char *topic, char *payload);
 int subscribe(MQTTAsync* client, char *topic);
 int disconnect_mqtt_client(MQTTAsync* client);
@@ -73,6 +74,9 @@ int main(int argc, char **argv) {
 	int res;
 	int sleepTimeout;
 	struct config configstr;
+
+	char *passwd;
+	char *msproxyUrl;
 
 	//setup the syslog logging
 	setlogmask(LOG_UPTO(LOGLEVEL));
@@ -88,8 +92,14 @@ int main(int argc, char **argv) {
 	//read the config file, to decide whether to goto quickstart or registered mode of operation
 	isRegistered = get_config(configFile, &configstr);
 
-	printf("The location are %s %s %s %s", configstr.org, configstr.type,
-			configstr.id, configstr.token);
+	if (isRegistered) {
+		syslog(LOG_INFO, "Running in Registered mode\n");
+		msproxyUrl = MSPROXY_URL_SSL;
+		passwd = configstr.token;
+	} else {
+		syslog(LOG_INFO, "Running in Quickstart mode\n");
+		msproxyUrl = MSPROXY_URL;
+	}
 
 	// read the events
 	char* mac_address = getmac("eth0");
@@ -100,7 +110,7 @@ int main(int argc, char **argv) {
 	int retryAttempt = 0;
 
 	// initialize the MQTT connection
-	init_mqtt_connection(&client, MSPROXY_URL, clientId);
+	init_mqtt_connection(&client, msproxyUrl, isRegistered, clientId, passwd);
 	// Wait till we get a successful connection to IoT MQTT server
 	while (!MQTTAsync_isConnected(client)) {
 		connDelayTimeout = 1; // add extra delay(3,60,600) only when reconnecting
@@ -110,7 +120,8 @@ int main(int argc, char **argv) {
 					"Failed connection attempt #%d. Will try to reconnect "
 							"in %d seconds\n", retryAttempt, connDelayTimeout);
 			connected = 0;
-			init_mqtt_connection(&client, MSPROXY_URL, clientId);
+			init_mqtt_connection(&client, msproxyUrl, isRegistered, clientId,
+					passwd);
 		}
 		fflush(stdout);
 		sleep(connDelayTimeout);
@@ -182,7 +193,7 @@ void getClientId(struct config * configstr, char* mac_address) {
 		deviceId = mac_address;
 
 	}
-	sprintf(clientId, "d:%s:%s:%s",orgId, typeId, deviceId);
+	sprintf(clientId, "d:%s:%s:%s", orgId, typeId, deviceId);
 //	sprintf(clientId, "%s:%s", TENANT_PREFIX,mac_address);
 }
 
@@ -218,6 +229,41 @@ int reconnect_delay(int i) {
 
 	return 600;	// after 20 attempts, retry every 10 minutes
 }
+//Trimming characters
+char *trim(char *str) {
+	size_t len = 0;
+	char *frontp = str - 1;
+	char *endp = NULL;
+
+	if (str == NULL)
+		return NULL;
+
+	if (str[0] == '\0')
+		return str;
+
+	len = strlen(str);
+	endp = str + len;
+
+	while (isspace(*(++frontp)))
+		;
+	while (isspace(*(--endp)) && endp != frontp)
+		;
+
+	if (str + len - 1 != endp)
+		*(endp + 1) = '\0';
+	else if (frontp != str && endp == frontp)
+		*str = '\0';
+
+	endp = str;
+	if (frontp != str) {
+		while (*frontp)
+			*endp++ = *frontp++;
+		*endp = '\0';
+	}
+
+	return str;
+}
+
 
 // This is the function to read the config from the device.cfg file
 int get_config(char * filename, struct config * configstr) {
@@ -226,25 +272,23 @@ int get_config(char * filename, struct config * configstr) {
 	char str1[10], str2[10];
 	prop = fopen(filename, "r");
 	if (prop == NULL) {
-		syslog(LOG_CRIT,
-				"Error while opening the properties file. Please ensure "
-						"that the properties file exist in this directory\n");
+		syslog(LOG_INFO,"Config file not found. Going to Quickstart mode\n");
 		return 0; // as the file is not present, it must be quickstart mode
 	}
 	char line[256];
 	int linenum = 0;
 	while (fgets(line, 256, prop) != NULL) {
-		char prop[256], value[256];
+		char* prop;
+		char* value;
 
 		linenum++;
 		if (line[0] == '#')
 			continue;
 
-		if (sscanf(line, "%s %s", prop, value) != 2) {
-			syslog(LOG_ERR, "Syntax error in properties file, line %d\n",
-					linenum);
-			continue;
-		}
+		prop = strtok(line, "=");
+		prop = trim(prop);
+		value = strtok(NULL, "=");
+		value = trim(value);
 		if (strcmp(prop, "org") == 0)
 			strncpy(configstr->org, value, MAXBUF);
 		else if (strcmp(prop, "type") == 0)
@@ -258,4 +302,3 @@ int get_config(char * filename, struct config * configstr) {
 
 	return 1;
 }
-

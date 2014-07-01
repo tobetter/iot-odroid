@@ -30,6 +30,7 @@
 #endif
 
 #define QOS 0
+#define TRUSTSTORE "/opt/iot/RapidSSL_CA_bundle.pem"
 
 /* this maintains the status of connection
  *  0 - Not connected
@@ -126,7 +127,7 @@ void onConnectFailure(void* context, MQTTAsync_failureData* response) {
 #ifdef ERROR
 	syslog(LOG_ERR, "Connect failed ");
 	if (response) {
-		syslog(LOG_ERR, "with response code : %d", response->code);
+		syslog(LOG_ERR, "with response code : %d and with message : %s", response->code, response->message);
 	}
 
 #endif
@@ -140,16 +141,18 @@ int subscribeMessage(void *context, char *topicName, int topicLen,
 		MQTTAsync_message *message) {
 	int i;
 	char* payloadptr;
-
-	printf("Message arrived\n");
-	printf("  topic: %s\n", topicName);
-	printf("  message: ");
+	char* command;
+	int time_delay = 0;
 
 	payloadptr = message->payload;
 
-	int de = getDelay(payloadptr);
-
-	printf("\n THe delay is %d", de);
+	time_delay = getDelay(payloadptr);
+	if(time_delay != -1) {
+		sprintf(command,"sudo /sbin/shutdown -r %d", time_delay);
+		syslog(LOG_INFO, "Received command to restart in %d minutes.",time_delay);
+		system(command);
+	} else
+		sprintf(command,"sudo /sbin/sdown -r %d", time_delay);
 
 	MQTTAsync_freeMessage(&message);
 	MQTTAsync_free(topicName);
@@ -159,9 +162,13 @@ int subscribeMessage(void *context, char *topicName, int topicLen,
 /* 
  * Function is used to initialize the MQTT connection handle "client"
  */
-int init_mqtt_connection(MQTTAsync* client, char *address, char* client_id) {
+int init_mqtt_connection(MQTTAsync* client, char *address, int isRegistered,
+		char* client_id, char* passwd) {
 
 	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
+
+	MQTTAsync_SSLOptions sslopts = MQTTAsync_SSLOptions_initializer;
+
 	int rc = MQTTASYNC_SUCCESS;
 	MQTTAsync_create(client, address, client_id, MQTTCLIENT_PERSISTENCE_NONE,
 	NULL);
@@ -177,8 +184,17 @@ int init_mqtt_connection(MQTTAsync* client, char *address, char* client_id) {
 	conn_opts.onSuccess = onConnectSuccess;
 	conn_opts.onFailure = onConnectFailure;
 	conn_opts.context = client;
-	conn_opts.username = client_id;
-	conn_opts.password = "M00sesRule!";
+	//only when in registered mode, set the username/passwd and enable TLS
+	if (isRegistered) {
+
+		conn_opts.username = client_id;
+		conn_opts.password = passwd;
+		sslopts.trustStore = TRUSTSTORE;
+		sslopts.enableServerCertAuth = 0;
+
+		conn_opts.ssl = &sslopts;
+	}
+
 	if ((rc = MQTTAsync_connect(*client, &conn_opts)) != MQTTASYNC_SUCCESS) {
 #ifdef ERROR
 		syslog(LOG_ERR, "Failed to start connect, return code %d\n", rc);
@@ -257,7 +273,8 @@ int publishMQTTMessage(MQTTAsync* client, char *topic, char *payload) {
 	}
 
 #ifdef INFO
-	syslog(LOG_DEBUG, "Waiting for publication of %s on topic %s\n", payload, topic);
+	syslog(LOG_DEBUG, "Waiting for publication of %s on topic %s\n", payload,
+			topic);
 #endif
 
 	return rc;
