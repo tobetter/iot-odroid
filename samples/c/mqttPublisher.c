@@ -44,31 +44,6 @@ volatile MQTTAsync_token deliveredtoken;
 int getDelay(char *text);
 
 /*
- * Try to reconnect if the connection is lost 
- */
-void connlost(void *context, char *cause) {
-
-	MQTTAsync client = (MQTTAsync) context;
-	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
-	int rc;
-#ifdef ERROR
-	syslog(LOG_ERR, "\nConnection lost\n");
-	syslog(LOG_ERR, " cause: %s\n", cause);
-#endif
-
-#ifdef INFO
-	syslog(LOG_INFO, "Reconnecting\n");
-#endif
-	conn_opts.keepAliveInterval = 20;
-	conn_opts.cleansession = 1;
-	if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS) {
-#ifdef ERROR
-		syslog(LOG_ERR, "Failed to start connect, return code %d\n", rc);
-#endif
-	}
-}
-
-/*
  * This function is called when the message is successfully published
  */
 void onSend(void* context, MQTTAsync_successData* response) {
@@ -159,11 +134,41 @@ int subscribeMessage(void *context, char *topicName, int topicLen,
 	return 1;
 }
 
+/*
+ * Try to reconnect if the connection is lost
+ */
+void connlost(void *context, char *cause) {
+
+	MQTTAsync client = (MQTTAsync)context;
+	int rc;
+#ifdef ERROR
+	syslog(LOG_ERR, "Connection lost\n");
+	syslog(LOG_ERR, " cause: %s\n", cause);
+#endif
+
+	syslog(LOG_INFO, "Retrying the connection\n");
+		MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
+
+		conn_opts.keepAliveInterval = 20;
+		conn_opts.cleansession = 1;
+		conn_opts.onSuccess = onConnectSuccess;
+		conn_opts.onFailure = onConnectFailure;
+		conn_opts.context = &client;
+		syslog(LOG_INFO, "Retrying the connection -1 \n");
+		if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS) {
+			syslog(LOG_INFO, "Retrying the connection -2 \n");
+	#ifdef ERROR
+			syslog(LOG_ERR, "Failed to start connect from connlost, return code %d\n", rc);
+	#endif
+		}
+		syslog(LOG_INFO, "Retrying the connection -3 \n");
+}
+
 /* 
  * Function is used to initialize the MQTT connection handle "client"
  */
 int init_mqtt_connection(MQTTAsync* client, char *address, int isRegistered,
-		char* client_id, char* passwd) {
+		char* client_id, char* username, char* passwd) {
 
 	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
 
@@ -186,8 +191,8 @@ int init_mqtt_connection(MQTTAsync* client, char *address, int isRegistered,
 	conn_opts.context = client;
 	//only when in registered mode, set the username/passwd and enable TLS
 	if (isRegistered) {
-
-		conn_opts.username = client_id;
+		//currently only supported mech is token based. Need to change this in future.
+		conn_opts.username = username;
 		conn_opts.password = passwd;
 		sslopts.trustStore = TRUSTSTORE;
 		sslopts.enableServerCertAuth = 0;

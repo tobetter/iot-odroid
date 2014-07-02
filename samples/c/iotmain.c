@@ -41,7 +41,8 @@ struct config {
 	char org[MAXBUF];
 	char type[MAXBUF];
 	char id[MAXBUF];
-	char token[MAXBUF];
+	char authmethod[MAXBUF];
+	char authtoken[MAXBUF];
 };
 
 int get_config(char* filename, struct config * configstr);
@@ -60,7 +61,7 @@ char * generateJSON(JsonMessage passedrpi);
 
 //mqttPublisher.c
 int init_mqtt_connection(MQTTAsync* client, char *address, int isRegistered,
-		char* client_id, char* passwd);
+		char* client_id, char* username, char* passwd);
 int publishMQTTMessage(MQTTAsync* client, char *topic, char *payload);
 int subscribe(MQTTAsync* client, char *topic);
 int disconnect_mqtt_client(MQTTAsync* client);
@@ -76,6 +77,7 @@ int main(int argc, char **argv) {
 	struct config configstr;
 
 	char *passwd;
+	char *username;
 	char *msproxyUrl;
 
 	//setup the syslog logging
@@ -92,10 +94,19 @@ int main(int argc, char **argv) {
 	//read the config file, to decide whether to goto quickstart or registered mode of operation
 	isRegistered = get_config(configFile, &configstr);
 
+	printf(" \n The token is %s and user is %s ",configstr.authmethod,configstr.authtoken);
 	if (isRegistered) {
 		syslog(LOG_INFO, "Running in Registered mode\n");
 		msproxyUrl = MSPROXY_URL_SSL;
-		passwd = configstr.token;
+		if(strcmp(configstr.authmethod ,"token") != 0) {
+			syslog(LOG_ERR, "Detected that auth-method is not token. Currently other authentication mechanisms are not supported, IoT process will exit.");
+			syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has ended ****");
+				closelog();
+				exit(1);
+		} else {
+			username = "use-token-auth";
+			passwd = configstr.authtoken;
+		}
 	} else {
 		syslog(LOG_INFO, "Running in Quickstart mode\n");
 		msproxyUrl = MSPROXY_URL;
@@ -109,7 +120,7 @@ int main(int argc, char **argv) {
 	int retryAttempt = 0;
 
 	// initialize the MQTT connection
-	init_mqtt_connection(&client, msproxyUrl, isRegistered, clientId, passwd);
+	init_mqtt_connection(&client, msproxyUrl, isRegistered, clientId, username, passwd);
 	// Wait till we get a successful connection to IoT MQTT server
 	while (!MQTTAsync_isConnected(client)) {
 		connDelayTimeout = 1; // add extra delay(3,60,600) only when reconnecting
@@ -119,7 +130,7 @@ int main(int argc, char **argv) {
 					"Failed connection attempt #%d. Will try to reconnect "
 							"in %d seconds\n", retryAttempt, connDelayTimeout);
 			connected = 0;
-			init_mqtt_connection(&client, msproxyUrl, isRegistered, clientId,
+			init_mqtt_connection(&client, msproxyUrl, isRegistered, clientId, username,
 					passwd);
 		}
 		fflush(stdout);
@@ -294,9 +305,10 @@ int get_config(char * filename, struct config * configstr) {
 			strncpy(configstr->type, value, MAXBUF);
 		else if (strcmp(prop, "id") == 0)
 			strncpy(configstr->id, value, MAXBUF);
-		else if (strcmp(prop, "token") == 0)
-			strncpy(configstr->token, value, MAXBUF);
-
+		else if (strcmp(prop, "auth-token") == 0)
+			strncpy(configstr->authtoken, value, MAXBUF);
+		else if (strcmp(prop, "auth-method") == 0)
+					strncpy(configstr->authmethod, value, MAXBUF);
 	}
 
 	return 1;
