@@ -104,7 +104,6 @@ int main(int argc, char **argv) {
 	// read the events
 	char* mac_address = getmac("eth0");
 	getClientId(&configstr, mac_address);
-	printf("\n The client is %s\n", clientId);
 	//the timeout between the connection retry
 	int connDelayTimeout = 1;	// default sleep for 1 sec
 	int retryAttempt = 0;
@@ -212,7 +211,7 @@ void sig_handler(int signo) {
 	int res = disconnect_mqtt_client(&client);
 
 	syslog(LOG_INFO, "Disconnect finished with result code : %d\n", res);
-	syslog(LOG_INFO, "Shutdown the process is complete. \n");
+	syslog(LOG_INFO, "Shutdown of the IoT process is complete. \n");
 	syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has ended ****");
 	closelog();
 	exit(1);

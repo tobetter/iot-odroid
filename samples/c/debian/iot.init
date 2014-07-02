@@ -60,7 +60,7 @@ do_start()
 		echo "There is another process of IOT-Raspberry Pi running. If there are no other IOT-Raspberry process running, please delete the $LOCKFILE file and start again"
 		return 1
 	fi
-	$DAEMON &
+	$DAEMON /dev/null 2>&1 &
 	echo $! > $PIDFILE
 	touch $LOCKFILE
 	return 0
