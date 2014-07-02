@@ -27,7 +27,6 @@ install: iot
 	ln -s libpaho-mqtt3as.so.1 $(LIBDIR)/libpaho-mqtt3as.so
 	install iotGetDeviceID.sh $(DIR)/iotGetDeviceID.sh
 	cp README.md $(DIR)/README
-	cp device.cfg.template $(CFGDIR)/device.cfg.template
 	cp RapidSSL_CA_bundle.pem $(DIR)/RapidSSL_CA_bundle.pem
 
 clean:
