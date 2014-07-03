@@ -94,15 +94,16 @@ int main(int argc, char **argv) {
 	//read the config file, to decide whether to goto quickstart or registered mode of operation
 	isRegistered = get_config(configFile, &configstr);
 
-	printf(" \n The token is %s and user is %s ",configstr.authmethod,configstr.authtoken);
 	if (isRegistered) {
 		syslog(LOG_INFO, "Running in Registered mode\n");
 		msproxyUrl = MSPROXY_URL_SSL;
 		if(strcmp(configstr.authmethod ,"token") != 0) {
 			syslog(LOG_ERR, "Detected that auth-method is not token. Currently other authentication mechanisms are not supported, IoT process will exit.");
 			syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has ended ****");
-				closelog();
-				exit(1);
+			closelog();
+			remove("/opt/.iot.pid");
+			remove("/opt/.iot.lck");
+			exit(1);
 		} else {
 			username = "use-token-auth";
 			passwd = configstr.authtoken;
