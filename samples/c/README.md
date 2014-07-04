@@ -28,7 +28,7 @@ Starting the iot program
 
 This installs and starts the iot process.  Use the status call to check the status of the process
 ```
-pi@raspberrypi ~ $ invoke-rc.d iot status
+pi@raspberrypi ~ $ service iot status
 [ ok ] iot is running.
 ```
 
@@ -38,7 +38,7 @@ pi@raspberrypi ~ $ invoke-rc.d iot status
 
 Visit the [IBM Internet of Things QuickStart Portal](http://quickstart.internetofthings.ibmcloud.com/) and enter your device ID to see real time visualizations of the data sent from your device.
 
-Run `invoke-rc.d iot getdeviceid` to get the device ID (MAC address) for your Raspberry Pi
+Run `service iot getdeviceid` to get the device ID (MAC address) for your Raspberry Pi
 
 ```
 pi@raspberrypi ~ $ invoke-rc.d iot getdeviceid
@@ -51,14 +51,14 @@ For Real-time visualization of the data, visit http://quickstart.internetofthing
 
 #### Stop
 ```
-pi@raspberrypi /opt/iot $ sudo invoke-rc.d iot stop
+pi@raspberrypi /opt/iot $ sudo service iot stop
 Stopping the program
 Stopping the IoT-Raspberry Pi program with pid : <pid>
 ```
 
 #### Start
 ```
-pi@raspberrypi /opt/iot $ sudo invoke-rc.d iot start
+pi@raspberrypi /opt/iot $ sudo service iot start
 Starting the iot program
 ```
 
@@ -73,6 +73,61 @@ Purging configuration files for iot ...
 ```
 
 IoT process logs with the help of syslog. So to view the logs, go to /var/log/syslog. 
+
+#####Switching from Quickstart connection to a Registered connection
+
+Onboard your device onto the Internet of Things Cloud. You will get the following information.
+
+1. Organization Id
+2. Device Type ID
+3. Device ID
+4. Authetication Method
+5. Authetication Token
+
+
+Stop the iot process
+		
+		sudo service iot stop
+
+Type in the following command to create a new file device.cfg at /etc/iotsample-raspberrypi. Fill in the configuration file with the details that you got during onboarding the device.
+sudo nano /etc/iotsample-raspberrypi/device.cfg
+
+```	
+#Sample Device configuration file...
+org = yourOrganizationCode
+type = iotsample-raspberrypi
+id =b827eba84426
+auth-method=token
+auth-token = yourAuthToken
+#End of Configuration file.	
+
+Note: All the properties in the configuration file are mandatory.
+		Currently, only token based authetication is supported. 
+```
+Save your file by pressing CTRL-X in Nano and follow the steps on the screen
+
+Start the iot process. This will start the device in registered mode.
+
+			sudo service iot start
+
+
+
+#####Command Support
+
+Now the Raspberry Pi Sample running in registered mode supports receiving of commands sent by an application. 
+
+1.Raspberry Pi supports Reboot Command
+
+2.Application should send the command in the following details
+		
+		Topic : iot-2/type/<type>/id/<id>/cmd/reboot/fmt/json 
+		Payload : 
+			{
+    				“delay”:<numberOfMinutes>
+			}
+
+	numberOfMinutes : minutes to wait before reboot of the device. If the value is not supplied, the device will be rebooted immediately. ```
+
 
 
 #####Note for Windows Users:
