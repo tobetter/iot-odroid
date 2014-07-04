@@ -1,6 +1,6 @@
 iot-raspberrypi
 ===============
-This repository contains working sample device client software for the IBM Internet of Things Cloud Quickstart service
+This repository contains working sample device client software for the IBM Internet of Things Cloud service
 on the Raspberry Pi model B.
 
 Raspberry Pi
@@ -11,9 +11,5 @@ See this [recipe](https://www.ibmdw.net/iot/recipes/raspberry-pi/) for running t
 
 Content
 =======
-There are two samples:
-* __c__, this sample installs a 'iot' service, which periodically sends events to the internet of things cloud.
-
-* __nodered__, this sample installs Node-RED (see nodered.org) as an "always on" service. Node-RED provides a capability to develop an application using a browser based UI. The sample recipe installs node for IBM Internet of Things Cloud Quickstart service, together with a sample flow that sends the events up to the Quickstart on a 1s interval.
-
+There is a c sample that installs an 'iot' service, which periodically sends events to the internet of things cloud.
 
