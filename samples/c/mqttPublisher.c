@@ -127,7 +127,7 @@ int subscribeMessage(void *context, char *topicName, int topicLen,
 		syslog(LOG_INFO, "Received command to restart in %d minutes.",time_delay);
 		system(command);
 	} else
-		sprintf(command,"sudo /sbin/sdown -r %d", time_delay);
+		syslog(LOG_ERR, "Invalid command received.");
 
 	MQTTAsync_freeMessage(&message);
 	MQTTAsync_free(topicName);
@@ -156,12 +156,10 @@ void connlost(void *context, char *cause) {
 		conn_opts.context = &client;
 		syslog(LOG_INFO, "Retrying the connection -1 \n");
 		if ((rc = MQTTAsync_connect(client, &conn_opts)) != MQTTASYNC_SUCCESS) {
-			syslog(LOG_INFO, "Retrying the connection -2 \n");
 	#ifdef ERROR
 			syslog(LOG_ERR, "Failed to start connect from connlost, return code %d\n", rc);
 	#endif
 		}
-		syslog(LOG_INFO, "Retrying the connection -3 \n");
 }
 
 /* 
@@ -178,7 +176,7 @@ int init_mqtt_connection(MQTTAsync* client, char *address, int isRegistered,
 	MQTTAsync_create(client, address, client_id, MQTTCLIENT_PERSISTENCE_NONE,
 	NULL);
 
-	MQTTAsync_setCallbacks(*client, NULL, connlost, subscribeMessage, NULL);
+	MQTTAsync_setCallbacks(*client, NULL, NULL, subscribeMessage, NULL);
 
 #ifdef INFO
 	syslog(LOG_INFO, "Connecting to %s with client Id: %s \n", address,
@@ -208,10 +206,12 @@ int init_mqtt_connection(MQTTAsync* client, char *address, int isRegistered,
 	return rc;
 }
 
-int reconnect(MQTTAsync* client) {
+int reconnect(MQTTAsync* client, int isRegistered,
+		char* username, char* passwd) {
 
 	syslog(LOG_INFO, "Retrying the connection\n");
 	MQTTAsync_connectOptions conn_opts = MQTTAsync_connectOptions_initializer;
+	MQTTAsync_SSLOptions sslopts = MQTTAsync_SSLOptions_initializer;
 
 	conn_opts.keepAliveInterval = 20;
 	conn_opts.cleansession = 1;
@@ -219,6 +219,19 @@ int reconnect(MQTTAsync* client) {
 	conn_opts.onFailure = onConnectFailure;
 	conn_opts.context = client;
 	int rc;
+
+	//only when in registered mode, set the username/passwd and enable TLS
+		if (isRegistered) {
+			//currently only supported mech is token based. Need to change this in future.
+			syslog(LOG_INFO, "with SSL properties\n");
+			conn_opts.username = username;
+			conn_opts.password = passwd;
+			sslopts.trustStore = TRUSTSTORE;
+			sslopts.enableServerCertAuth = 0;
+
+			conn_opts.ssl = &sslopts;
+	}
+
 	if ((rc = MQTTAsync_connect(*client, &conn_opts)) != MQTTASYNC_SUCCESS) {
 #ifdef ERROR
 		syslog(LOG_ERR, "Failed to start connect, return code %d\n", rc);

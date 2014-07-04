@@ -65,7 +65,8 @@ int init_mqtt_connection(MQTTAsync* client, char *address, int isRegistered,
 int publishMQTTMessage(MQTTAsync* client, char *topic, char *payload);
 int subscribe(MQTTAsync* client, char *topic);
 int disconnect_mqtt_client(MQTTAsync* client);
-int reconnect(MQTTAsync* client);
+int reconnect(MQTTAsync* client, int isRegistered,
+		char* username, char* passwd);
 
 int main(int argc, char **argv) {
 
@@ -78,7 +79,7 @@ int main(int argc, char **argv) {
 
 	char *passwd;
 	char *username;
-	char *msproxyUrl;
+	char msproxyUrl[MAXBUF];
 
 	//setup the syslog logging
 	setlogmask(LOG_UPTO(LOGLEVEL));
@@ -96,21 +97,19 @@ int main(int argc, char **argv) {
 
 	if (isRegistered) {
 		syslog(LOG_INFO, "Running in Registered mode\n");
-		msproxyUrl = MSPROXY_URL_SSL;
+		sprintf(msproxyUrl, "ssl://%s.messaging.internetofthings.ibmcloud.com:8883", configstr.org);
 		if(strcmp(configstr.authmethod ,"token") != 0) {
 			syslog(LOG_ERR, "Detected that auth-method is not token. Currently other authentication mechanisms are not supported, IoT process will exit.");
 			syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has ended ****");
-			closelog();
-			remove("/opt/.iot.pid");
-			remove("/opt/.iot.lck");
-			exit(1);
+				closelog();
+				exit(1);
 		} else {
 			username = "use-token-auth";
 			passwd = configstr.authtoken;
 		}
 	} else {
 		syslog(LOG_INFO, "Running in Quickstart mode\n");
-		msproxyUrl = MSPROXY_URL;
+		strcpy(msproxyUrl,"tcp://quickstart.messaging.internetofthings.ibmcloud.com:1883");
 	}
 
 	// read the events
@@ -166,7 +165,7 @@ int main(int argc, char **argv) {
 							"seconds\n", retryAttempt, connDelayTimeout);
 					sleep(connDelayTimeout);
 					connected = 0;
-					reconnect(&client);
+					reconnect(&client, isRegistered, username,passwd);
 				}
 				fflush(stdout);
 				sleep(1);
