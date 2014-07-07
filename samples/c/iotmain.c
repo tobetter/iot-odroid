@@ -22,8 +22,8 @@
 
 char configFile[50] = "/etc/iotsample-raspberrypi/device.cfg";
 float PI = 3.1415926;
-float MIN_VALUE = -50.0;
-float MAX_VALUE = 50.0;
+float MIN_VALUE = -1.0;
+float MAX_VALUE = 1.0;
 
 char clientId[MAXBUF];
 char publishTopic[MAXBUF] = "iot-2/evt/status/fmt/json";
