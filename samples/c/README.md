@@ -129,6 +129,19 @@ Now the Raspberry Pi Sample running in registered mode supports receiving of com
 	numberOfMinutes : minutes to wait before reboot of the device. If the value is not supplied, the device will be rebooted immediately. ```
 
 
+####Note for users who want to change the code, compile and build the .deb file:
 
-#####Note for Windows Users:
+Clone the project into your local Raspberry Pi environment
+```
+	pi@raspberrypi ~ $ git clone https://github.com/ibm-messaging/iot-raspberrypi.git
+	pi@raspberrypi ~ $ cd iot-raspberrypi/samples/c/
+```
+Make the necessary changes to the c source files and finally build the .deb file, the installer for iot-raspberrypi 
+```
+pi@raspberrypi ~ debuild -b
+```
+
+Now the .deb file will be generated on the directory one level up.
+
+####Note for Windows Users:
 When you clone/fork this repository,ensure that file permissions for the libraries are set properly and that  "libpaho-mqtt3a.so" and "libpaho-mqtt3a.so.1" are symbolic links. 
