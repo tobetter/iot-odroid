@@ -138,7 +138,7 @@ Clone the project into your local Raspberry Pi environment
 ```
 Make the necessary changes to the c source files and finally build the .deb file, the installer for iot-raspberrypi 
 ```
-pi@raspberrypi ~ debuild -b
+	pi@raspberrypi ~ debuild -b
 ```
 
 Now the .deb file will be generated on the directory one level up.
