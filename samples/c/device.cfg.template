@@ -1,6 +1,7 @@
 #Device configuration file...
-org=ibm_test
-type = TestDevice
-id=a
-token=M00sesRule!
+org=<yourOrg>
+type=iotsample-raspberrypi
+id=<yourId>
+auth-method=token
+auth-token=<yourAuthToken>
 #End of Configuration file
