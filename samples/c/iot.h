@@ -40,7 +40,7 @@
 #define DEVICE_NAME "myPi"
 //Logging level for the syslog
 //Default is INFO-6. Other possible values - ERROR-3, INFO-6, DEBUG-7
-#define LOGLEVEL 7
+#define LOGLEVEL 6
 
 extern int connected;
 
