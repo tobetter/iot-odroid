@@ -37,7 +37,7 @@
 #define MSPROXY_URL "tcp://46.16.189.243:1883"
 #define MSPROXY_URL_SSL "ssl://46.16.189.242:8883"
 #define EVENTS_INTERVAL 1
-#define DEVICE_NAME "myPi"
+#define DEVICE_NAME "My ODROID"
 //Logging level for the syslog
 //Default is INFO-6. Other possible values - ERROR-3, INFO-6, DEBUG-7
 #define LOGLEVEL 6
