@@ -1,17 +1,17 @@
 DIR=$(DESTDIR)/opt/iot
 LIBDIR=$(DESTDIR)/usr/lib
-CFGDIR=$(DESTDIR)/etc/iotsample-raspberrypi
+CFGDIR=$(DESTDIR)/etc/iotsample-odroid
 
-COMPILELIBDIR=./lib
-LIBNAME=paho-mqtt3as
+LIBMQTT_PATH=/usr/local/lib
+LIBMQTT_NAME=paho-mqtt3as
 
 all: iot
 
 .PHONY: all install clean distclean
 
 iot: iotmain.c cpustat.c mac.c mqttPublisher.c jsonator.c iot.h jsonReader.c
-	export LIBRARY_PATH=$(COMPILELIBDIR):$(LIBRARY_PATH)
-	$(CC) iotmain.c cpustat.c mac.c mqttPublisher.c jsonator.c cJSON.c jsonReader.c -o $@ -l$(LIBNAME) -lpthread -lssl -lm -L $(COMPILELIBDIR) -I .
+	export LIBRARY_PATH=$(LIBMQTT_PATH):$(LIBRARY_PATH)
+	$(CC) iotmain.c cpustat.c mac.c mqttPublisher.c jsonator.c cJSON.c jsonReader.c -o $@ -l$(LIBMQTT_NAME) -lpthread -lssl -lm -I.
 	strip $@
 
 install: iot
@@ -19,12 +19,6 @@ install: iot
 	mkdir -p $(DIR)
 	mkdir -p $(CFGDIR)
 	install iot $(DIR)/iot
-	cp $(COMPILELIBDIR)/libpaho-mqtt3a.so.1.0 $(LIBDIR)/libpaho-mqtt3a.so.1.0
-	cp $(COMPILELIBDIR)/libpaho-mqtt3as.so.1.0 $(LIBDIR)/libpaho-mqtt3as.so.1.0
-	ln -s libpaho-mqtt3a.so.1.0 $(LIBDIR)/libpaho-mqtt3a.so.1
-	ln -s libpaho-mqtt3as.so.1.0 $(LIBDIR)/libpaho-mqtt3as.so.1
-	ln -s libpaho-mqtt3a.so.1 $(LIBDIR)/libpaho-mqtt3a.so
-	ln -s libpaho-mqtt3as.so.1 $(LIBDIR)/libpaho-mqtt3as.so
 	install iotGetDeviceID.sh $(DIR)/iotGetDeviceID.sh
 	cp README.md $(DIR)/README
 	cp IoTFoundation.pem $(DIR)/IoTFoundation.pem
