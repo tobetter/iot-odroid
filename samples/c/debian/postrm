@@ -21,9 +21,9 @@ set -e
 
 case "$1" in
     purge|remove)
-	if [ -e "/etc/iotsample-raspberrypi/device.cfg" ]; then
+	if [ -e "/etc/iotsample-odroid/device.cfg" ]; then
 		echo "device.cfg exists. Deleting it."
-		rm /etc/iotsample-raspberrypi/device.cfg
+		rm /etc/iotsample-odroid/device.cfg
 	fi
     ;;
 esac

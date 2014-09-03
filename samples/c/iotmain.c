@@ -20,7 +20,7 @@
 #include "MQTTAsync.h"
 #include <syslog.h>
 
-char configFile[50] = "/etc/iotsample-raspberrypi/device.cfg";
+char configFile[50] = "/etc/iotsample-odroid/device.cfg";
 float PI = 3.1415926;
 float MIN_VALUE = -1.0;
 float MAX_VALUE = 1.0;
@@ -199,7 +199,7 @@ void getClientId(struct config * configstr, char* mac_address) {
 	} else {
 
 		orgId = "quickstart";
-		typeId = "iotsample-raspberrypi";
+		typeId = "iotsample-odroid";
 		deviceId = mac_address;
 
 	}

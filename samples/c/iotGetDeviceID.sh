@@ -1,5 +1,5 @@
 #!/bin/sh
-FILE=/etc/iotsample-raspberrypi/device.cfg
+FILE=/etc/iotsample-odroid/device.cfg
 if [ -e "$FILE" ]
 then
 	echo Running in registered mode

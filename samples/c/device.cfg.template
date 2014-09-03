@@ -1,6 +1,6 @@
 #Device configuration file...
 org=<yourOrg>
-type=iotsample-raspberrypi
+type=iotsample-odroid
 id=<yourId>
 auth-method=token
 auth-token=<yourAuthToken>
