@@ -1,6 +1,6 @@
-iot-raspberrypi
+iot-odroid
 ===============
-This is the sample program to send the following events from the Raspberry Pi to the Quickstart IBM Internet of Things service. 
+This is the sample program to send the following events from the ODROID-XU3 to the Quickstart IBM Internet of Things service. 
 
 The events that are emitted in this sample are:
 
@@ -38,7 +38,7 @@ pi@raspberrypi ~ $ service iot status
 
 Visit the [IBM Internet of Things QuickStart Portal](http://quickstart.internetofthings.ibmcloud.com/) and enter your device ID to see real time visualizations of the data sent from your device.
 
-Run `service iot getdeviceid` to get the device ID (MAC address) for your Raspberry Pi
+Run `service iot getdeviceid` to get the device ID (MAC address) for your ODROID-XU3
 
 ```
 pi@raspberrypi ~ $ invoke-rc.d iot getdeviceid
@@ -53,7 +53,7 @@ For Real-time visualization of the data, visit http://quickstart.internetofthing
 ```
 pi@raspberrypi /opt/iot $ sudo service iot stop
 Stopping the program
-Stopping the IoT-Raspberry Pi program with pid : <pid>
+Stopping the IoT-ODROID-XU3 program with pid : <pid>
 ```
 
 #### Start
@@ -68,7 +68,7 @@ pi@raspberrypi ~ $ sudo dpkg -P iot
 (Reading database ... 68615 files and directories currently installed.)
 Removing iot ...
 Stopping the program
-Stopping the IoT-Raspberry Pi program with pid : 8592
+Stopping the IoT-ODROID-XU3 program with pid : 8592
 Purging configuration files for iot ...
 ```
 
@@ -114,9 +114,9 @@ Start the iot process. This will start the device in registered mode.
 
 #####Command Support
 
-Now the Raspberry Pi Sample running in registered mode supports receiving of commands sent by an application. 
+Now the ODROID-XU3 Sample running in registered mode supports receiving of commands sent by an application. 
 
-1.Raspberry Pi supports Reboot Command
+1.ODROID-XU3 supports Reboot Command
 
 2.Application should send the command in the following details
 		
@@ -131,7 +131,7 @@ Now the Raspberry Pi Sample running in registered mode supports receiving of com
 
 ####Note for users who want to change the code, compile and build the .deb file:
 
-Clone the project into your local Raspberry Pi environment
+Clone the project into your local ODROID-XU3 environment
 ```
 	pi@raspberrypi ~ $ git clone https://github.com/ibm-messaging/iot-raspberrypi.git
 	pi@raspberrypi ~ $ cd iot-raspberrypi/samples/c/

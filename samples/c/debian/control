@@ -1,4 +1,4 @@
-Source: iot
+Source: iotsample-odroid
 Section: unknown
 Priority: extra
 Maintainer: Jeffrey Dare <jeffdare@in.ibm.com>
@@ -6,7 +6,7 @@ Build-Depends: debhelper (>= 8.0.0)
 Standards-Version: 3.9.3
 Homepage: http://www.ibm.com
 
-Package: iot
+Package: iotsample-odroid
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: This is a sample code for connecting Raspberry Pi to the IoT
+Description: This is a sample code for connecting ODROID-XU3 to the IoT

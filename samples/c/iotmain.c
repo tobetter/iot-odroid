@@ -84,7 +84,7 @@ int main(int argc, char **argv) {
 	//setup the syslog logging
 	setlogmask(LOG_UPTO(LOGLEVEL));
 	openlog("iot", LOG_PID | LOG_CONS, LOG_USER);
-	syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has started ****");
+	syslog(LOG_INFO, "**** IoT ODROID-XU3 Sample has started ****");
 
 	// register the signal handler for USR1-user defined signal 1
 	if (signal(SIGUSR1, sig_handler) == SIG_ERR)
@@ -100,7 +100,7 @@ int main(int argc, char **argv) {
 		sprintf(msproxyUrl, "ssl://%s.messaging.internetofthings.ibmcloud.com:8883", configstr.org);
 		if(strcmp(configstr.authmethod ,"token") != 0) {
 			syslog(LOG_ERR, "Detected that auth-method is not token. Currently other authentication mechanisms are not supported, IoT process will exit.");
-			syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has ended ****");
+			syslog(LOG_INFO, "**** IoT ODROID-XU3 Sample has ended ****");
 				closelog();
 				exit(1);
 		} else {
@@ -223,7 +223,7 @@ void sig_handler(int signo) {
 
 	syslog(LOG_INFO, "Disconnect finished with result code : %d\n", res);
 	syslog(LOG_INFO, "Shutdown of the IoT process is complete. \n");
-	syslog(LOG_INFO, "**** IoT Raspberry Pi Sample has ended ****");
+	syslog(LOG_INFO, "**** IoT ODROID-XU3 Sample has ended ****");
 	closelog();
 	exit(1);
 }

@@ -11,7 +11,7 @@
 *******************************************************************************/
 
 /*
- * This function generates the json based on the events from Raspberry Pi
+ * This function generates the json based on the events from ODROID-XU3
  *
  */
 

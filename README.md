@@ -1,12 +1,12 @@
-iot-raspberrypi
+iot-odroid
 ===============
 This repository contains working sample device client software for the IBM Internet of Things Cloud service
-on the Raspberry Pi model B.
+on the ODROID-XU3
 
-Raspberry Pi
-============
+ODROID-XU3
+==========
 
-See this [recipe](https://www.ibmdw.net/iot/recipes/raspberry-pi/) for running the code in this repository.
+See this [recipe](https://www.ibmdw.net/iot/recipes/odroid-xu3/) for running the code in this repository.
 
 
 Content

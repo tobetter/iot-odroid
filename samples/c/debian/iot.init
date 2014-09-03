@@ -7,7 +7,7 @@
 # Default-Stop:      0 1 6
 # Short-Description: IoT service
 # Description:       IoT service used to publish the events from
-#		from Raspberry Pi to the IoT cloud service
+#		from ODROID-XU3 to the IoT cloud service
 ### END INIT INFO
 
 # =============================================================================
@@ -26,7 +26,7 @@
 
 # PATH should only include /usr/* if it runs after the mountnfs.sh script
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-DESC="This service is used to publish events from the Raspberry Pi to the Internet of Things cloud"
+DESC="This service is used to publish events from the ODROID-XU3 to the Internet of Things cloud"
 NAME=iot
 DAEMON=/opt/iot/$NAME
 PIDFILE=/opt/.$NAME.pid
@@ -57,7 +57,7 @@ do_start()
 
 	if [ -e "$LOCKFILE" ]
 	then 
-		echo "There is another process of IOT-Raspberry Pi running. If there are no other IOT-Raspberry process running, please delete the $LOCKFILE file and start again"
+		echo "There is another process of IOT-ODROID-XU3 running. If there are no other IOT-ODROID-XU3 process running, please delete the $LOCKFILE file and start again"
 		return 1
 	fi
 	$DAEMON /dev/null 2>&1 &
@@ -81,13 +81,13 @@ do_stop()
 	if [ -e "$PIDFILE" ]
 	then
         	pid="`cat $PIDFILE`"
-        	echo "Stopping the IoT-Raspberry Pi program with pid : $pid"
+                echo "Stopping the IoT-ODROID-XU3 program with pid : $pid"
         	kill -USR1 $pid
         	rm -f $PIDFILE
         	rm -f $LOCKFILE
 		return 0
 	else
-        	echo "The IoT-Raspberry process is already stopped."
+                echo "The IoT-ODROID-XU3 process is already stopped."
 		rm -f $LOCKFILE
 		return 1
 	fi
