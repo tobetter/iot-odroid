@@ -30,7 +30,7 @@
 #endif
 
 #define QOS 0
-#define TRUSTSTORE "/opt/iot/RapidSSL_CA_bundle.pem"
+#define TRUSTSTORE "/opt/iot/IoTFoundation.pem"
 
 /* this maintains the status of connection
  *  0 - Not connected
@@ -193,7 +193,7 @@ int init_mqtt_connection(MQTTAsync* client, char *address, int isRegistered,
 		conn_opts.username = username;
 		conn_opts.password = passwd;
 		sslopts.trustStore = TRUSTSTORE;
-		sslopts.enableServerCertAuth = 0;
+		sslopts.enableServerCertAuth = 1;
 
 		conn_opts.ssl = &sslopts;
 	}
