@@ -23,6 +23,7 @@ install: iot
 	cp README.md $(DIR)/README
 	cp IoTFoundation.pem $(DIR)/IoTFoundation.pem
 	cp etc/QuickStart.html.template $(CFGDIR)/QuickStart.html.template
+	cp etc/iotsample-odroid /etc/init.d/iotsample-odroid
 
 clean:
 	rm -f iot

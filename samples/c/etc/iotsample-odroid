@@ -1,0 +1,78 @@
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          iotsample-odroid
+# Required-Start:    $local_fs $network $named $time $syslog
+# Required-Stop:     $local_fs $network $named $time $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: IBM IoT service.
+### END INIT INFO
+
+SCRIPT=/usr/sbin/iot
+
+PIDFILE=/var/run/iotsample-odroid.pid
+LOGFILE=/var/log/iotsample-odroid.log
+
+DISKIMAGE=/etc/iotsample-odroid/device.raw
+TEMPLATE=/etc/iotsample-odroid/QuickStart.html.template
+USBMOUNT=/media/usb
+DEVICEFILE=$USBMOUNT/device.info
+
+MAC=`ifconfig eth0 | grep HWaddr | tr -s ' ' | cut -d ' ' -f5`
+DEVID=`echo $MAC | tr -d ':'`
+IPADDRESS=`/sbin/ifconfig eth0 | grep "inet addr" | awk -F: '{print $2}' | awk '{print $1}'`
+
+start() {
+    if [ -f /var/run/$PIDFILE ] && kill -0 $(cat /var/run/$PIDFILE); then
+        echo 'Service already running' >&2
+        return 1
+    fi
+
+    mkdir -p /etc/iot
+    mkdir -p $USBMOUNT
+
+    if [ ! -f $DISKIMAGE ]; then
+        dd if=/dev/zero of=$DISKIMAGE bs=1M count=32
+        mkdosfs $DISKIMAGE
+    fi
+
+    mount -t vfat $DISKIMAGE $USBMOUNT
+    echo "device-id=$DEVID" > $DEVICEFILE
+    echo "mac-address=$MAC" >> $DEVICEFILE
+    echo "ip-address=$IPADDRESS" >> $DEVICEFILE
+    sed "s/YOUR_DEVICE_ID/$DEVID/g" $TEMPLATE > $USBMOUNT/QuickStart.html
+    umount /media/usb
+
+    modprobe g_mass_storage file=$DISKIMAGE
+
+    local CMD="$SCRIPT &> \"$LOGFILE\" & echo \$!"
+    su -c "$CMD" root > "$PIDFILE"
+    echo 'Service started' >&2
+}
+
+stop() {
+    if [ ! -f "$PIDFILE" ] || ! kill -0 $(cat "$PIDFILE"); then
+        echo 'Service not running' >&2
+        return 1
+    fi
+
+    rmmod g_mass_storage
+
+    kill -15 $(cat "$PIDFILE") && rm -f "$PIDFILE"
+    echo 'Service stopped' >&2
+}
+
+case "$1" in
+    start)
+        start
+        ;;
+    stop)
+        stop
+        ;;
+    restart)
+        stop
+        start
+        ;;
+    *)
+        echo "Usage: $0 {start|stop|restart}"
+esac
