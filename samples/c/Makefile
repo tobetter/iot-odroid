@@ -22,6 +22,7 @@ install: iot
 	install iotGetDeviceID.sh $(DIR)/iotGetDeviceID.sh
 	cp README.md $(DIR)/README
 	cp IoTFoundation.pem $(DIR)/IoTFoundation.pem
+	cp etc/QuickStart.html.template $(CFGDIR)/QuickStart.html.template
 
 clean:
 	rm -f iot
