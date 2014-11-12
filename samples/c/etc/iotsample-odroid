@@ -8,7 +8,7 @@
 # Short-Description: IBM IoT service.
 ### END INIT INFO
 
-SCRIPT=/usr/sbin/iot
+SCRIPT=/opt/iot/iot
 
 PIDFILE=/var/run/iotsample-odroid.pid
 LOGFILE=/var/log/iotsample-odroid.log
